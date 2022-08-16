@@ -5,9 +5,9 @@ using UnityEngine;
 namespace BlockyWorld {
     public class Quad
     {
-        public Mesh Build(Block.BlockSide side, Vector3 offset) {
-            Mesh mesh;
-            
+        public Mesh mesh;
+
+        public Quad(Block.BlockSide side, Vector3 offset) {
             mesh = new Mesh();
             mesh.name = "Scripted Quad";
 
@@ -69,8 +69,6 @@ namespace BlockyWorld {
             mesh.triangles = triangles;
 
             mesh.RecalculateBounds();
-
-            return mesh;
         }
     }
 }
