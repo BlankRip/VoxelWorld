@@ -342,7 +342,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 684dbe0720edef14fa40c11c7f193bb8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  testSide: 5
+  atlas: {fileID: 2100000, guid: eae6522f56be32c4b9b7cebf86383411, type: 2}
+  blockType: 4
 --- !u!1 &1976226030
 GameObject:
   m_ObjectHideFlags: 0
@@ -394,7 +395,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 10303, guid: 0000000000000000f000000000000000, type: 0}
+  - {fileID: 2100000, guid: eae6522f56be32c4b9b7cebf86383411, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0

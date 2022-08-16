@@ -7,17 +7,21 @@ namespace BlockyWorld {
     {
         public enum BlockSide {Nada, Bottom, Top, Left, Right, Front, Back};
 
+        [SerializeField] Material atlas;
+        [SerializeField] MeshUtils.BlockTye blockType;
+
         private void Start() {
             MeshFilter meshFilter = gameObject.AddComponent<MeshFilter>();
             MeshRenderer meshRenderer = gameObject.AddComponent<MeshRenderer>();
+            meshRenderer.material = atlas;
 
             Quad[] quads = new Quad[6];
-            quads[0] = new Quad(BlockSide.Bottom, new Vector3(0, 0, 0));
-            quads[1] = new Quad(BlockSide.Top, new Vector3(0, 0, 0));
-            quads[2] = new Quad(BlockSide.Left, new Vector3(0, 0, 0));
-            quads[3] = new Quad(BlockSide.Right, new Vector3(0, 0, 0));
-            quads[4] = new Quad(BlockSide.Front, new Vector3(0, 0, 0));
-            quads[5] = new Quad(BlockSide.Back, new Vector3(0, 0, 0));
+            quads[0] = new Quad(BlockSide.Bottom, new Vector3(0, 0, 0), blockType);
+            quads[1] = new Quad(BlockSide.Top, new Vector3(0, 0, 0), blockType);
+            quads[2] = new Quad(BlockSide.Left, new Vector3(0, 0, 0), blockType);
+            quads[3] = new Quad(BlockSide.Right, new Vector3(0, 0, 0), blockType);
+            quads[4] = new Quad(BlockSide.Front, new Vector3(0, 0, 0), blockType);
+            quads[5] = new Quad(BlockSide.Back, new Vector3(0, 0, 0), blockType);
 
             Mesh[] sideMeshes = new Mesh[6];
             for (int i = 0; i < quads.Length; i++)

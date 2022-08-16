@@ -7,7 +7,7 @@ namespace BlockyWorld {
     {
         public Mesh mesh;
 
-        public Quad(Block.BlockSide side, Vector3 offset) {
+        public Quad(Block.BlockSide side, Vector3 offset, MeshUtils.BlockTye blockTye) {
             mesh = new Mesh();
             mesh.name = "Scripted Quad";
 
@@ -16,10 +16,10 @@ namespace BlockyWorld {
             Vector2[] uv =  new Vector2[4];
             int[] triangles = new int[6];
 
-            Vector2 uv00 = new Vector2(0, 0);
-            Vector2 uv10 = new Vector2(1, 0);
-            Vector2 uv01 = new Vector2(0, 1);
-            Vector2 uv11 = new Vector2(1, 1);
+            Vector2 uv00 = MeshUtils.blockUVs[(int)blockTye, 0];
+            Vector2 uv10 = MeshUtils.blockUVs[(int)blockTye, 1];
+            Vector2 uv01 = MeshUtils.blockUVs[(int)blockTye, 2];
+            Vector2 uv11 = MeshUtils.blockUVs[(int)blockTye, 3];
 
             Vector3 p0 = offset + new Vector3(-0.5f, -0.5f, 0.5f);
             Vector3 p1 = offset + new Vector3(0.5f, -0.5f, 0.5f);
