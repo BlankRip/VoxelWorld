@@ -310,7 +310,7 @@ GameObject:
   - component: {fileID: 1695945041}
   - component: {fileID: 1695945042}
   m_Layer: 0
-  m_Name: MyMeshBuild
+  m_Name: MyChunkBuilder
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -339,11 +339,12 @@ MonoBehaviour:
   m_GameObject: {fileID: 1695945040}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 684dbe0720edef14fa40c11c7f193bb8, type: 3}
+  m_Script: {fileID: 11500000, guid: b4719b68b758d68488a3e999a8696ea3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  chunkSize: {x: 2, y: 2, z: 2}
   atlas: {fileID: 2100000, guid: eae6522f56be32c4b9b7cebf86383411, type: 2}
-  blockType: 4
+  blockType: 0
 --- !u!1 &1976226030
 GameObject:
   m_ObjectHideFlags: 0

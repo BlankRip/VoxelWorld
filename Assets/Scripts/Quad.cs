@@ -7,7 +7,7 @@ namespace BlockyWorld {
     {
         public Mesh mesh;
 
-        public Quad(Block.BlockSide side, Vector3 offset, MeshUtils.BlockTye blockTye) {
+        public Quad(MeshUtils.BlockSide side, Vector3 offset, MeshUtils.BlockType blockTye) {
             mesh = new Mesh();
             mesh.name = "Scripted Quad";
 
@@ -31,27 +31,27 @@ namespace BlockyWorld {
             Vector3 p7 = offset + new Vector3(-0.5f, 0.5f, -0.5f);
 
             switch(side) {
-                case Block.BlockSide.Front: {
+                case MeshUtils.BlockSide.Front: {
                     vertices = new Vector3[] {p4, p5, p1, p0};
                     normals = new Vector3[] {Vector3.forward, Vector3.forward, Vector3.forward, Vector3.forward};
                     break;
-                } case Block.BlockSide.Back: {
+                } case MeshUtils.BlockSide.Back: {
                     vertices = new Vector3[] {p6, p7, p3, p2};
                     normals = new Vector3[] {Vector3.back, Vector3.back, Vector3.back, Vector3.back};
                     break;
-                } case Block.BlockSide.Bottom: {
+                } case MeshUtils.BlockSide.Bottom: {
                     vertices = new Vector3[] {p0, p1, p2, p3};
                     normals = new Vector3[] {Vector3.down, Vector3.down, Vector3.down, Vector3.down};
                     break;
-                } case Block.BlockSide.Top: {
+                } case MeshUtils.BlockSide.Top: {
                     vertices = new Vector3[] {p7, p6, p5, p4};
                     normals = new Vector3[] {Vector3.up, Vector3.up, Vector3.up, Vector3.up};
                     break;
-                } case Block.BlockSide.Left: {
+                } case MeshUtils.BlockSide.Left: {
                     vertices = new Vector3[] {p7, p4, p0, p3};
                     normals = new Vector3[] {Vector3.left, Vector3.left, Vector3.left, Vector3.left};
                     break;
-                } case Block.BlockSide.Right: {
+                } case MeshUtils.BlockSide.Right: {
                     vertices = new Vector3[] {p5, p6, p2, p1};
                     normals = new Vector3[] {Vector3.right, Vector3.right, Vector3.right, Vector3.right};
                     break;
