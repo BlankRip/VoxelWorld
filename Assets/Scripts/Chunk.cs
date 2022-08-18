@@ -10,22 +10,33 @@ using UnityEngine.Rendering;
 namespace BlockyWorld {
     public class Chunk : MonoBehaviour
     {
+        [Header("Chunk Data")]
         public Vector3Int chunkSize = new Vector3Int(2, 2, 2);
         [SerializeField] Material atlas;
         [SerializeField] MeshUtils.BlockType blockType;
 
+        [Header("Perlin height graph")]
+        [SerializeField] Vector3Int offset = new Vector3Int(0, -33, 0);
+        [SerializeField] int octives = 8;
+        [SerializeField] float scale = 0.001f;
+        [SerializeField] float hightScale = 10.0f;
+
         private Block[,,] blocks;
-        //Flaten array [x + width(3d.x) * (y + depth(3d.z) * z)] = [x, y, z] in 3d array
+        //Flaten 3d array [x + width(3d.x) * (y + depth(3d.z) * z)] = [x, y, z] in 3d array
+        //Flat to 3d x = i % width (3d.x);  y = i/width(3d.x) % height (3d.y);   z = i / (width (3d.x) * height (3d.y))
         [HideInInspector] public MeshUtils.BlockType[] chunkData;
 
         void BuildChunkData() {
             int blockCount = chunkSize.x * chunkSize.y * chunkSize.z;
             chunkData = new MeshUtils.BlockType[blockCount];
             for (int i = 0; i < blockCount; i++) {
-                if(UnityEngine.Random.Range(0, 101) < 30)
-                    chunkData[i] = MeshUtils.BlockType.Air;
-                else
+                int x = i % chunkSize.x + offset.x;
+                int y = (i / chunkSize.x) % chunkSize.y;
+                int z = i / (chunkSize.x * chunkSize.z) + offset.z;
+                if(MeshUtils.fBM(x, z, octives, scale, hightScale, offset.y) > y)
                     chunkData[i] = blockType;
+                else
+                    chunkData[i] = MeshUtils.BlockType.Air;
             }
         }
 

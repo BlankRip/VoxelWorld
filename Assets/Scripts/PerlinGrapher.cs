@@ -21,10 +21,10 @@ public class PerlinGrapher : MonoBehaviour
         float total = 0.0f;
         float frequency = 1.0f;
         for (int i = 0; i < octives; i++) {
-            total += Mathf.PerlinNoise(x * scale * frequency, z * scale * frequency) * hightScale;
+            total += Mathf.PerlinNoise((offset.x + x) * scale * frequency, (offset.z + z) * scale * frequency) * hightScale;
             frequency *= 2;
         }
-        return total;
+        return offset.y + total;
     }
 
     private void Graph() {
@@ -34,7 +34,7 @@ public class PerlinGrapher : MonoBehaviour
         Vector3[] positions = new Vector3[lr.positionCount];
         for (int x = 0; x < lr.positionCount; x++) {
             float y = fBM(x, z, octives);
-            positions[x] = new Vector3( offset.x + x, offset.y + y, offset.z + z);
+            positions[x] = new Vector3(x, y, z);
         }
         lr.SetPositions(positions);
     }

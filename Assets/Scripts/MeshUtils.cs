@@ -44,6 +44,17 @@ public class MeshUtils
         }
     };
 
+    //Factorial Browniem Motion
+    public static float fBM(float x, float z, int octives, float scale, float hightScale, float heightOffset) {
+        float total = 0.0f;
+        float frequency = 1.0f;
+        for (int i = 0; i < octives; i++) {
+            total += Mathf.PerlinNoise(x * scale * frequency, z * scale * frequency) * hightScale;
+            frequency *= 2;
+        }
+        return total + heightOffset;
+    }
+
     public static Mesh MergeMeshes(Mesh[] meshes) {
         Mesh mesh = new Mesh();
         Dictionary<VertexData, int> pointsOrder = new Dictionary<VertexData, int>();
