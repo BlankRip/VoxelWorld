@@ -342,9 +342,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b4719b68b758d68488a3e999a8696ea3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  chunkSize: {x: 2, y: 2, z: 2}
+  chunkSize: {x: 10, y: 10, z: 5}
   atlas: {fileID: 2100000, guid: eae6522f56be32c4b9b7cebf86383411, type: 2}
-  blockType: 0
+  blockType: 2
+  chunkData: 
 --- !u!1 &1976226030
 GameObject:
   m_ObjectHideFlags: 0
@@ -363,7 +364,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!65 &1976226031
 BoxCollider:
   m_ObjectHideFlags: 0

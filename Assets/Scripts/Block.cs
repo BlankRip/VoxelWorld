@@ -6,22 +6,50 @@ namespace BlockyWorld {
     public class Block
     {
         public Mesh mesh;
+        private Chunk parentChunk;
 
-        public Block(Vector3 offset, MeshUtils.BlockType type) {
-            Quad[] quads = new Quad[6];
-            quads[0] = new Quad(MeshUtils.BlockSide.Bottom, offset, type);
-            quads[1] = new Quad(MeshUtils.BlockSide.Top, offset, type);
-            quads[2] = new Quad(MeshUtils.BlockSide.Left, offset, type);
-            quads[3] = new Quad(MeshUtils.BlockSide.Right, offset, type);
-            quads[4] = new Quad(MeshUtils.BlockSide.Front, offset, type);
-            quads[5] = new Quad(MeshUtils.BlockSide.Back, offset, type);
+        public Block(Vector3 offset, MeshUtils.BlockType type, Chunk chunk) {
+            parentChunk = chunk;
+            if(type == MeshUtils.BlockType.Air)
+                return;
+            
+            List<Quad> quads = new List<Quad>();
+            if(!HasSolidNeighbour((int)offset.x, (int)offset.y - 1, (int)offset.z))
+                quads.Add(new Quad(MeshUtils.BlockSide.Bottom, offset, type));
+            if(!HasSolidNeighbour((int)offset.x, (int)offset.y + 1, (int)offset.z))
+                quads.Add(new Quad(MeshUtils.BlockSide.Top, offset, type));
+            if(!HasSolidNeighbour((int)offset.x - 1, (int)offset.y, (int)offset.z))
+                quads.Add(new Quad(MeshUtils.BlockSide.Left, offset, type));
+            if(!HasSolidNeighbour((int)offset.x + 1, (int)offset.y, (int)offset.z))
+                quads.Add(new Quad(MeshUtils.BlockSide.Right, offset, type));
+            if(!HasSolidNeighbour((int)offset.x, (int)offset.y, (int)offset.z + 1))
+                quads.Add(new Quad(MeshUtils.BlockSide.Front, offset, type));
+            if(!HasSolidNeighbour((int)offset.x, (int)offset.y, (int)offset.z - 1))
+                quads.Add(new Quad(MeshUtils.BlockSide.Back, offset, type));
 
-            Mesh[] sideMeshes = new Mesh[6];
-            for (int i = 0; i < quads.Length; i++)
+            if(quads.Count == 0)
+                return;
+
+            Mesh[] sideMeshes = new Mesh[quads.Count];
+            for (int i = 0; i < quads.Count; i++)
                 sideMeshes[i] = quads[i].mesh;
             
             mesh = MeshUtils.MergeMeshes(sideMeshes);
-            mesh.name = "Cube_0_0_0";
+            mesh.name = $"Cube_{offset.x}_{offset.y}_{offset.z}";
+        }
+
+        private bool HasSolidNeighbour(int x, int y, int z) {
+            if(x < 0 || x >= parentChunk.chunkSize.x || y < 0 || y >= parentChunk.chunkSize.y ||
+            z < 0 || z >= parentChunk.chunkSize.z) {
+                return false;
+            }
+
+            int neighbourIndex = x + (parentChunk.chunkSize.x * (y + (parentChunk.chunkSize.z * z)));
+            if(parentChunk.chunkData[neighbourIndex] == MeshUtils.BlockType.Air ||
+            parentChunk.chunkData[neighbourIndex] == MeshUtils.BlockType.Water) {
+                return false;
+            }
+            return true;
         }
     }       
 }
