@@ -342,9 +342,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b4719b68b758d68488a3e999a8696ea3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  chunkSize: {x: 10, y: 10, z: 5}
+  chunkSize: {x: 10, y: 10, z: 10}
   atlas: {fileID: 2100000, guid: eae6522f56be32c4b9b7cebf86383411, type: 2}
-  blockType: 2
+  blockType: 1
   chunkData: 
 --- !u!1 &1976226030
 GameObject:

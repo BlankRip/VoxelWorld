@@ -11,7 +11,7 @@ namespace BlockyWorld {
             mesh = new Mesh();
             mesh.name = "Scripted Quad";
 
-            Vector3[] vertices = new Vector3[5];
+            Vector3[] vertices = new Vector3[4];
             Vector3[] normals = new Vector3[4];
             Vector2[] uv =  new Vector2[4];
             int[] triangles = new int[6];

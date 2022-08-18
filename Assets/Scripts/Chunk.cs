@@ -22,7 +22,10 @@ namespace BlockyWorld {
             int blockCount = chunkSize.x * chunkSize.y * chunkSize.z;
             chunkData = new MeshUtils.BlockType[blockCount];
             for (int i = 0; i < blockCount; i++) {
-                chunkData[i] = blockType;
+                if(UnityEngine.Random.Range(0, 101) < 30)
+                    chunkData[i] = MeshUtils.BlockType.Air;
+                else
+                    chunkData[i] = blockType;
             }
         }
 
