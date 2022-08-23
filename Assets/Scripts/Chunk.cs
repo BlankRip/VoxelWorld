@@ -16,10 +16,10 @@ namespace BlockyWorld {
         [SerializeField] MeshUtils.BlockType blockType;
 
         [Header("Perlin height graph")]
-        [SerializeField] Vector3Int offset = new Vector3Int(0, -33, 0);
-        [SerializeField] int octives = 8;
-        [SerializeField] float scale = 0.001f;
-        [SerializeField] float hightScale = 10.0f;
+        public Vector3Int offset = new Vector3Int(0, -33, 0);
+        public int octives = 8;
+        public float scale = 0.001f;
+        public float hightScale = 10.0f;
 
         [Header("Testing")]
         [SerializeField] bool buildChunkInStart;
@@ -113,6 +113,8 @@ namespace BlockyWorld {
 
             newMesh.RecalculateBounds();
             meshFilter.mesh = newMesh;
+            MeshCollider collider = gameObject.AddComponent<MeshCollider>();
+            collider.sharedMesh = meshFilter.mesh;
         }
 
         [BurstCompile]
