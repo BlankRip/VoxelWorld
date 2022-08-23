@@ -13,18 +13,20 @@ namespace BlockyWorld {
             if(type == MeshUtils.BlockType.Air)
                 return;
             
+            Vector3 localPosInFloat = (offset - chunk.worldPosition);
+            Vector3Int blockLocalPos = new Vector3Int((int)localPosInFloat.x, (int)localPosInFloat.y, (int)localPosInFloat.z);
             List<Quad> quads = new List<Quad>();
-            if(!HasSolidNeighbour((int)offset.x, (int)offset.y - 1, (int)offset.z))
+            if(!HasSolidNeighbour(blockLocalPos.x, blockLocalPos.y - 1, blockLocalPos.z))
                 quads.Add(new Quad(MeshUtils.BlockSide.Bottom, offset, type));
-            if(!HasSolidNeighbour((int)offset.x, (int)offset.y + 1, (int)offset.z))
+            if(!HasSolidNeighbour(blockLocalPos.x, blockLocalPos.y + 1, blockLocalPos.z))
                 quads.Add(new Quad(MeshUtils.BlockSide.Top, offset, type));
-            if(!HasSolidNeighbour((int)offset.x - 1, (int)offset.y, (int)offset.z))
+            if(!HasSolidNeighbour(blockLocalPos.x - 1, blockLocalPos.y, blockLocalPos.z))
                 quads.Add(new Quad(MeshUtils.BlockSide.Left, offset, type));
-            if(!HasSolidNeighbour((int)offset.x + 1, (int)offset.y, (int)offset.z))
+            if(!HasSolidNeighbour(blockLocalPos.x + 1, blockLocalPos.y, blockLocalPos.z))
                 quads.Add(new Quad(MeshUtils.BlockSide.Right, offset, type));
-            if(!HasSolidNeighbour((int)offset.x, (int)offset.y, (int)offset.z + 1))
+            if(!HasSolidNeighbour(blockLocalPos.x, blockLocalPos.y, blockLocalPos.z + 1))
                 quads.Add(new Quad(MeshUtils.BlockSide.Front, offset, type));
-            if(!HasSolidNeighbour((int)offset.x, (int)offset.y, (int)offset.z - 1))
+            if(!HasSolidNeighbour(blockLocalPos.x, blockLocalPos.y, blockLocalPos.z - 1))
                 quads.Add(new Quad(MeshUtils.BlockSide.Back, offset, type));
 
             if(quads.Count == 0)

@@ -21,18 +21,22 @@ namespace BlockyWorld {
         [SerializeField] float scale = 0.001f;
         [SerializeField] float hightScale = 10.0f;
 
+        [Header("Testing")]
+        [SerializeField] bool buildChunkInStart;
+
         private Block[,,] blocks;
         //Flaten 3d array [x + width(3d.x) * (y + depth(3d.z) * z)] = [x, y, z] in 3d array
         //Flat to 3d x = i % width (3d.x);  y = i/width(3d.x) % height (3d.y);   z = i / (width (3d.x) * height (3d.y))
         [HideInInspector] public MeshUtils.BlockType[] chunkData;
+        [HideInInspector] public Vector3 worldPosition;
 
         void BuildChunkData() {
             int blockCount = chunkSize.x * chunkSize.y * chunkSize.z;
             chunkData = new MeshUtils.BlockType[blockCount];
             for (int i = 0; i < blockCount; i++) {
-                int x = i % chunkSize.x + offset.x;
-                int y = (i / chunkSize.x) % chunkSize.y;
-                int z = i / (chunkSize.x * chunkSize.z) + offset.z;
+                int x = (i % chunkSize.x) + offset.x + (int)worldPosition.x;
+                int y = ((i / chunkSize.x) % chunkSize.y) + (int)worldPosition.y;
+                int z = (i / (chunkSize.x * chunkSize.z)) + offset.z + (int)worldPosition.z;
                 if(MeshUtils.fBM(x, z, octives, scale, hightScale, offset.y) > y)
                     chunkData[i] = blockType;
                 else
@@ -41,6 +45,14 @@ namespace BlockyWorld {
         }
 
         private void Start() {
+            if(buildChunkInStart)
+                CreateChunk(chunkSize, transform.position);
+        }
+
+        public void CreateChunk(Vector3Int dimensions, Vector3 postion) {
+            worldPosition = postion;
+            chunkSize = dimensions;
+
             MeshFilter meshFilter = gameObject.AddComponent<MeshFilter>();
             MeshRenderer meshRenderer = gameObject.AddComponent<MeshRenderer>();
             meshRenderer.material = atlas;
@@ -59,7 +71,7 @@ namespace BlockyWorld {
             for (int z = 0; z < chunkSize.z; z++) {
                 for (int y = 0; y < chunkSize.y; y++) {
                     for (int x = 0; x < chunkSize.x; x++) {
-                        blocks[x,y,z] = new Block(new Vector3(x, y, z), chunkData[(x + (chunkSize.x * (y + (chunkSize.z * z))))], this);
+                        blocks[x,y,z] = new Block(new Vector3(x, y, z) + worldPosition, chunkData[(x + (chunkSize.x * (y + (chunkSize.z * z))))], this);
                         if(blocks[x, y, z].mesh != null) {
                             inputMeshes.Add(blocks[x, y, z].mesh);
                             int vertexCount = blocks[x, y, z].mesh.vertexCount;
@@ -84,7 +96,7 @@ namespace BlockyWorld {
                                                 new VertexAttributeDescriptor(VertexAttribute.TexCoord0, stream: 2));
             JobHandle handle = jobs.Schedule(inputMeshes.Count, 4);
             Mesh newMesh = new Mesh();
-            newMesh.name = "Chunk";
+            newMesh.name = $"Chunk_{worldPosition.x}_{worldPosition.y}_{worldPosition.z}";
             SubMeshDescriptor subMesh = new SubMeshDescriptor(0, triStart, MeshTopology.Triangles);
             subMesh.firstVertex = 0;
             subMesh.vertexCount = vertexStart;
