@@ -14,7 +14,7 @@ namespace BlockyWorld.WorldBuilding {
         [Header("Chunk Data")]
         public Vector3Int chunkSize = new Vector3Int(2, 2, 2);
         [SerializeField] Material atlas;
-        [SerializeField] MeshUtils.BlockType baseBlockType = MeshUtils.BlockType.Dirt;
+        [SerializeField] BlockStaticData.BlockType baseBlockType = BlockStaticData.BlockType.Dirt;
 
         [Header("Testing")]
         [SerializeField] bool createChunkOnStart;
@@ -23,12 +23,12 @@ namespace BlockyWorld.WorldBuilding {
         private Block[,,] blocks;
         //Flaten 3d array [x + width(3d.x) * (y + depth(3d.z) * z)] = [x, y, z] in 3d array
         //Flat to 3d x = i % width (3d.x);  y = i/width(3d.x) % height (3d.y);   z = i / (width (3d.x) * height (3d.y))
-        [HideInInspector] public MeshUtils.BlockType[] chunkData;
+        [HideInInspector] public BlockStaticData.BlockType[] chunkData;
         [HideInInspector] public Vector3 worldPosition;
 
         void BuildChunkData() {
             int blockCount = chunkSize.x * chunkSize.y * chunkSize.z;
-            chunkData = new MeshUtils.BlockType[blockCount];
+            chunkData = new BlockStaticData.BlockType[blockCount];
             for (int i = 0; i < blockCount; i++) {
                 int x = (i % chunkSize.x) + (int)worldPosition.x;
                 int y = ((i / chunkSize.x) % chunkSize.y) + (int)worldPosition.y;
@@ -46,13 +46,13 @@ namespace BlockyWorld.WorldBuilding {
                         World.stoneSettings.hightScale, World.stoneSettings.heightOffset);
                 }
                 if(surfaceHeight == y)
-                    chunkData[i] = MeshUtils.BlockType.GrassSide;
+                    chunkData[i] = BlockStaticData.BlockType.GrassSide;
                 else if(y < stoneHeight && (UnityEngine.Random.Range(0.0f, 1.0f) < World.stoneSettings.probability))
-                    chunkData[i] = MeshUtils.BlockType.Stone;
+                    chunkData[i] = BlockStaticData.BlockType.Stone;
                 else if(surfaceHeight > y)
                     chunkData[i] = baseBlockType;
                 else
-                    chunkData[i] = MeshUtils.BlockType.Air;
+                    chunkData[i] = BlockStaticData.BlockType.Air;
             }
         }
 

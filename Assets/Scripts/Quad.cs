@@ -7,7 +7,7 @@ namespace BlockyWorld.WorldBuilding {
     {
         public Mesh mesh;
 
-        public Quad(MeshUtils.BlockSide side, Vector3 offset, MeshUtils.BlockType blockTye) {
+        public Quad(BlockStaticData.BlockSide side, Vector3 offset, BlockStaticData.BlockType blockTye) {
             mesh = new Mesh();
             mesh.name = "Scripted Quad";
 
@@ -16,10 +16,10 @@ namespace BlockyWorld.WorldBuilding {
             Vector2[] uv =  new Vector2[4];
             int[] triangles = new int[6];
 
-            Vector2 uv00 = MeshUtils.blockUVs[(int)blockTye, 0];
-            Vector2 uv10 = MeshUtils.blockUVs[(int)blockTye, 1];
-            Vector2 uv01 = MeshUtils.blockUVs[(int)blockTye, 2];
-            Vector2 uv11 = MeshUtils.blockUVs[(int)blockTye, 3];
+            Vector2 uv00 = BlockStaticData.blockUVs[(int)blockTye, 0];
+            Vector2 uv10 = BlockStaticData.blockUVs[(int)blockTye, 1];
+            Vector2 uv01 = BlockStaticData.blockUVs[(int)blockTye, 2];
+            Vector2 uv11 = BlockStaticData.blockUVs[(int)blockTye, 3];
 
             Vector3 p0 = offset + new Vector3(-0.5f, -0.5f, 0.5f);
             Vector3 p1 = offset + new Vector3(0.5f, -0.5f, 0.5f);
@@ -31,27 +31,27 @@ namespace BlockyWorld.WorldBuilding {
             Vector3 p7 = offset + new Vector3(-0.5f, 0.5f, -0.5f);
 
             switch(side) {
-                case MeshUtils.BlockSide.Front: {
+                case BlockStaticData.BlockSide.Front: {
                     vertices = new Vector3[] {p4, p5, p1, p0};
                     normals = new Vector3[] {Vector3.forward, Vector3.forward, Vector3.forward, Vector3.forward};
                     break;
-                } case MeshUtils.BlockSide.Back: {
+                } case BlockStaticData.BlockSide.Back: {
                     vertices = new Vector3[] {p6, p7, p3, p2};
                     normals = new Vector3[] {Vector3.back, Vector3.back, Vector3.back, Vector3.back};
                     break;
-                } case MeshUtils.BlockSide.Bottom: {
+                } case BlockStaticData.BlockSide.Bottom: {
                     vertices = new Vector3[] {p0, p1, p2, p3};
                     normals = new Vector3[] {Vector3.down, Vector3.down, Vector3.down, Vector3.down};
                     break;
-                } case MeshUtils.BlockSide.Top: {
+                } case BlockStaticData.BlockSide.Top: {
                     vertices = new Vector3[] {p7, p6, p5, p4};
                     normals = new Vector3[] {Vector3.up, Vector3.up, Vector3.up, Vector3.up};
                     break;
-                } case MeshUtils.BlockSide.Left: {
+                } case BlockStaticData.BlockSide.Left: {
                     vertices = new Vector3[] {p7, p4, p0, p3};
                     normals = new Vector3[] {Vector3.left, Vector3.left, Vector3.left, Vector3.left};
                     break;
-                } case MeshUtils.BlockSide.Right: {
+                } case BlockStaticData.BlockSide.Right: {
                     vertices = new Vector3[] {p5, p6, p2, p1};
                     normals = new Vector3[] {Vector3.right, Vector3.right, Vector3.right, Vector3.right};
                     break;
