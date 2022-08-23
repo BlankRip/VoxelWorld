@@ -7,7 +7,7 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: PerlinNoiseGraph
+  m_Name: PerlinDiamond
   m_Shader: {fileID: 4800000, guid: 7201850f5b2a528479722f0ec74b0aa8, type: 3}
   m_ShaderKeywords: 
   m_LightmapFlags: 4
@@ -79,6 +79,6 @@ Material:
     - _UVSec: 0
     - _ZWrite: 1
     m_Colors:
-    - _Color: {r: 1, g: 0.89912635, b: 0, a: 1}
+    - _Color: {r: 0, g: 1, b: 0.98136926, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
   m_BuildTextureStacks: []

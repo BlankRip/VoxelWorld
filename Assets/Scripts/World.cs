@@ -7,23 +7,32 @@ using BlockyWorld.Perlin;
 namespace BlockyWorld.WorldBuilding {
     public class World : MonoBehaviour
     {
-        public static Vector3 worldDimensions = new Vector3(3, 3, 3);
+        public static Vector3 worldDimensions = new Vector3(10, 10, 10);
         public static Vector3Int chunkDimensions = new Vector3Int(10, 10, 10);
+
+        public static PerlinSettings surfaceSettings;
+        public static PerlinSettings stoneSettings;
+        public static PerlinSettings diamondTopSettings;
+        public static PerlinSettings diamondBottomSettings;
+
         [SerializeField] GameObject chunkPrefab;
         [SerializeField] GameObject loadingCamera;
         [SerializeField] GameObject firstPersonController;
         [SerializeField] Slider loadingBar; 
 
-        public static PerlinSettings surfaceSettings;
+        [Header("Graphers")]
         [SerializeField] PerlinGrapher surfaceGrapher;
-        public static PerlinSettings stoneSettings;
         [SerializeField] PerlinGrapher stoneGrapher;
+        [SerializeField] PerlinGrapher diamondTopGrapher;
+        [SerializeField] PerlinGrapher diamondBottomGrapher;
 
 
         private void Start() {
             loadingBar.maxValue = worldDimensions.x * worldDimensions.y * worldDimensions.z;
             surfaceSettings = new PerlinSettings(surfaceGrapher.settings);
             stoneSettings = new PerlinSettings(stoneGrapher.settings);
+            diamondTopSettings = new PerlinSettings(diamondTopGrapher.settings);
+            diamondBottomSettings = new PerlinSettings(diamondBottomGrapher.settings);
             StartCoroutine(BuildWorld());
         }
 

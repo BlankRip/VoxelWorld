@@ -35,6 +35,8 @@ namespace BlockyWorld.WorldBuilding {
                 int z = (i / (chunkSize.x * chunkSize.z)) + (int)worldPosition.z;
                 int surfaceHeight = 0;
                 int stoneHeight = 0;
+                int diamondTopHeight = 0;
+                int diamondBottomHeight = 0;
                 if(createChunkOnStart) {
                     surfaceHeight = (int)MeshUtils.fBM(x, z, testPerlinSettings.octives, testPerlinSettings.scale,
                         testPerlinSettings.hightScale, testPerlinSettings.heightOffset);
@@ -44,15 +46,22 @@ namespace BlockyWorld.WorldBuilding {
                         World.surfaceSettings.hightScale, World.surfaceSettings.heightOffset);
                     stoneHeight = (int)MeshUtils.fBM(x, z, World.stoneSettings.octives, World.stoneSettings.scale,
                         World.stoneSettings.hightScale, World.stoneSettings.heightOffset);
+                    diamondTopHeight = (int)MeshUtils.fBM(x, z, World.diamondTopSettings.octives, World.diamondTopSettings.scale,
+                        World.diamondTopSettings.hightScale, World.diamondTopSettings.heightOffset);
+                    diamondBottomHeight = (int)MeshUtils.fBM(x, z, World.diamondBottomSettings.octives, World.diamondBottomSettings.scale,
+                        World.diamondBottomSettings.hightScale, World.diamondBottomSettings.heightOffset);
                 }
-                if(surfaceHeight == y)
+                if(surfaceHeight == y) {
                     chunkData[i] = BlockStaticData.BlockType.GrassSide;
-                else if(y < stoneHeight && (UnityEngine.Random.Range(0.0f, 1.0f) < World.stoneSettings.probability))
+                } else if ((y < diamondTopHeight) && (y > diamondBottomHeight) &&  (UnityEngine.Random.Range(0.0f, 1.0f) < World.diamondTopSettings.probability)) {
+                    chunkData[i] = BlockStaticData.BlockType.Diamond;
+                } else if(y < stoneHeight && (UnityEngine.Random.Range(0.0f, 1.0f) < World.stoneSettings.probability)) {
                     chunkData[i] = BlockStaticData.BlockType.Stone;
-                else if(surfaceHeight > y)
+                } else if(surfaceHeight > y) {
                     chunkData[i] = baseBlockType;
-                else
+                } else {
                     chunkData[i] = BlockStaticData.BlockType.Air;
+                }
             }
         }
 
