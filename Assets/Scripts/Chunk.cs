@@ -5,9 +5,10 @@ using Unity.Collections;
 using Unity.Jobs;
 using UnityEngine;
 using UnityEngine.Rendering;
+using BlockyWorld.Perlin;
 
 
-namespace BlockyWorld {
+namespace BlockyWorld.WorldBuilding {
     public class Chunk : MonoBehaviour
     {
         [Header("Chunk Data")]

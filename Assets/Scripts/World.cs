@@ -2,26 +2,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using BlockyWorld.Perlin;
 
-namespace BlockyWorld {
-
-    [System.Serializable]
-    public struct PerlinSettings {
-        public float heightOffset;
-        public int octives;
-        public float scale;
-        public float hightScale;
-        public float probability;
-
-        public PerlinSettings(int octives, float scale, float  hightScale, float heightOffset, float probability) {
-            this.heightOffset = heightOffset;
-            this.octives = octives;
-            this.scale = scale;
-            this.hightScale = hightScale;
-            this.probability = probability;
-        }
-    }
-
+namespace BlockyWorld.WorldBuilding {
     public class World : MonoBehaviour
     {
         public static Vector3 worldDimensions = new Vector3(3, 3, 3);
@@ -39,10 +22,8 @@ namespace BlockyWorld {
 
         private void Start() {
             loadingBar.maxValue = worldDimensions.x * worldDimensions.y * worldDimensions.z;
-            surfaceSettings = new PerlinSettings(surfaceGrapher.octives, surfaceGrapher.scale, surfaceGrapher.hightScale,
-                surfaceGrapher.heightOffset, surfaceGrapher.probability);
-            stoneSettings = new PerlinSettings(stoneGrapher.octives, stoneGrapher.scale, stoneGrapher.hightScale,
-                stoneGrapher.heightOffset, stoneGrapher.probability);
+            surfaceSettings = new PerlinSettings(surfaceGrapher.settings);
+            stoneSettings = new PerlinSettings(stoneGrapher.settings);
             StartCoroutine(BuildWorld());
         }
 

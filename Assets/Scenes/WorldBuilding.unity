@@ -354,6 +354,12 @@ MonoBehaviour:
   scale: 0.001
   octives: 8
   probability: 1
+  settings:
+    octives: 8
+    scale: 0.001
+    hightScale: 10
+    heightOffset: -18
+    probability: 1
   lr: {fileID: 211635176}
 --- !u!4 &211635178
 Transform:
@@ -955,6 +961,12 @@ MonoBehaviour:
   scale: 0.001
   octives: 8
   probability: 0.3
+  settings:
+    octives: 8
+    scale: 0.001
+    hightScale: 10
+    heightOffset: -28
+    probability: 0.3
   lr: {fileID: 1095309459}
 --- !u!4 &1095309461
 Transform:

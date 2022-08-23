@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace BlockyWorld {
+namespace BlockyWorld.WorldBuilding {
     public class Block
     {
         public Mesh mesh;
