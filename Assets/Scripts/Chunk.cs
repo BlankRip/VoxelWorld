@@ -13,16 +13,11 @@ namespace BlockyWorld {
         [Header("Chunk Data")]
         public Vector3Int chunkSize = new Vector3Int(2, 2, 2);
         [SerializeField] Material atlas;
-        [SerializeField] MeshUtils.BlockType blockType;
-
-        [Header("Perlin height graph")]
-        public Vector3Int offset = new Vector3Int(0, -33, 0);
-        public int octives = 8;
-        public float scale = 0.001f;
-        public float hightScale = 10.0f;
+        [SerializeField] MeshUtils.BlockType baseBlockType = MeshUtils.BlockType.Dirt;
 
         [Header("Testing")]
-        [SerializeField] bool buildChunkInStart;
+        [SerializeField] bool createChunkOnStart;
+        [SerializeField] PerlinSettings testPerlinSettings = new PerlinSettings(8, 0.001f, 10.0f, -18, 1.0f);
 
         private Block[,,] blocks;
         //Flaten 3d array [x + width(3d.x) * (y + depth(3d.z) * z)] = [x, y, z] in 3d array
@@ -34,21 +29,34 @@ namespace BlockyWorld {
             int blockCount = chunkSize.x * chunkSize.y * chunkSize.z;
             chunkData = new MeshUtils.BlockType[blockCount];
             for (int i = 0; i < blockCount; i++) {
-                int x = (i % chunkSize.x) + offset.x + (int)worldPosition.x;
+                int x = (i % chunkSize.x) + (int)worldPosition.x;
                 int y = ((i / chunkSize.x) % chunkSize.y) + (int)worldPosition.y;
-                int z = (i / (chunkSize.x * chunkSize.z)) + offset.z + (int)worldPosition.z;
-                int surfaceHeight = (int)MeshUtils.fBM(x, z, octives, scale, hightScale, offset.y);
+                int z = (i / (chunkSize.x * chunkSize.z)) + (int)worldPosition.z;
+                int surfaceHeight = 0;
+                int stoneHeight = 0;
+                if(createChunkOnStart) {
+                    surfaceHeight = (int)MeshUtils.fBM(x, z, testPerlinSettings.octives, testPerlinSettings.scale,
+                        testPerlinSettings.hightScale, testPerlinSettings.heightOffset);
+                }
+                else {
+                    surfaceHeight = (int)MeshUtils.fBM(x, z, World.surfaceSettings.octives, World.surfaceSettings.scale,
+                        World.surfaceSettings.hightScale, World.surfaceSettings.heightOffset);
+                    stoneHeight = (int)MeshUtils.fBM(x, z, World.stoneSettings.octives, World.stoneSettings.scale,
+                        World.stoneSettings.hightScale, World.stoneSettings.heightOffset);
+                }
                 if(surfaceHeight == y)
                     chunkData[i] = MeshUtils.BlockType.GrassSide;
+                else if(y < stoneHeight && (UnityEngine.Random.Range(0.0f, 1.0f) < World.stoneSettings.probability))
+                    chunkData[i] = MeshUtils.BlockType.Stone;
                 else if(surfaceHeight > y)
-                    chunkData[i] = blockType;
+                    chunkData[i] = baseBlockType;
                 else
                     chunkData[i] = MeshUtils.BlockType.Air;
             }
         }
 
         private void Start() {
-            if(buildChunkInStart)
+            if(createChunkOnStart)
                 CreateChunk(chunkSize, transform.position);
         }
 
