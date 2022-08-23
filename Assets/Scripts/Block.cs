@@ -1,4 +1,4 @@
-using System.Collections;
+ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -16,10 +16,18 @@ namespace BlockyWorld {
             Vector3 localPosInFloat = (offset - chunk.worldPosition);
             Vector3Int blockLocalPos = new Vector3Int((int)localPosInFloat.x, (int)localPosInFloat.y, (int)localPosInFloat.z);
             List<Quad> quads = new List<Quad>();
-            if(!HasSolidNeighbour(blockLocalPos.x, blockLocalPos.y - 1, blockLocalPos.z))
-                quads.Add(new Quad(MeshUtils.BlockSide.Bottom, offset, type));
-            if(!HasSolidNeighbour(blockLocalPos.x, blockLocalPos.y + 1, blockLocalPos.z))
-                quads.Add(new Quad(MeshUtils.BlockSide.Top, offset, type));
+            if(!HasSolidNeighbour(blockLocalPos.x, blockLocalPos.y - 1, blockLocalPos.z)) {
+                if(type == MeshUtils.BlockType.GrassSide)
+                    quads.Add(new Quad(MeshUtils.BlockSide.Bottom, offset, MeshUtils.BlockType.Dirt));
+                else
+                    quads.Add(new Quad(MeshUtils.BlockSide.Bottom, offset, type));
+            }
+            if(!HasSolidNeighbour(blockLocalPos.x, blockLocalPos.y + 1, blockLocalPos.z)) {
+                if(type == MeshUtils.BlockType.GrassSide)
+                    quads.Add(new Quad(MeshUtils.BlockSide.Top, offset, MeshUtils.BlockType.GrassTop));
+                else
+                    quads.Add(new Quad(MeshUtils.BlockSide.Top, offset, type));
+            }
             if(!HasSolidNeighbour(blockLocalPos.x - 1, blockLocalPos.y, blockLocalPos.z))
                 quads.Add(new Quad(MeshUtils.BlockSide.Left, offset, type));
             if(!HasSolidNeighbour(blockLocalPos.x + 1, blockLocalPos.y, blockLocalPos.z))

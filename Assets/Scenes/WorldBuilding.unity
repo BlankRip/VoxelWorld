@@ -1339,6 +1339,14 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 8271365409046048488, guid: 33b003f299ddf85458330e4cc9045415, type: 3}
+      propertyPath: offset.y
+      value: -33
+      objectReference: {fileID: 0}
+    - target: {fileID: 8271365409046048488, guid: 33b003f299ddf85458330e4cc9045415, type: 3}
+      propertyPath: buildChunkInStart
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 8271365409046048490, guid: 33b003f299ddf85458330e4cc9045415, type: 3}
       propertyPath: m_Name
       value: ChunkBuilder

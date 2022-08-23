@@ -37,7 +37,10 @@ namespace BlockyWorld {
                 int x = (i % chunkSize.x) + offset.x + (int)worldPosition.x;
                 int y = ((i / chunkSize.x) % chunkSize.y) + (int)worldPosition.y;
                 int z = (i / (chunkSize.x * chunkSize.z)) + offset.z + (int)worldPosition.z;
-                if(MeshUtils.fBM(x, z, octives, scale, hightScale, offset.y) > y)
+                int surfaceHeight = (int)MeshUtils.fBM(x, z, octives, scale, hightScale, offset.y);
+                if(surfaceHeight == y)
+                    chunkData[i] = MeshUtils.BlockType.GrassSide;
+                else if(surfaceHeight > y)
                     chunkData[i] = blockType;
                 else
                     chunkData[i] = MeshUtils.BlockType.Air;
