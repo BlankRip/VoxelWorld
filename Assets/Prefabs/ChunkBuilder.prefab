@@ -45,8 +45,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   chunkSize: {x: 10, y: 10, z: 10}
   atlas: {fileID: 2100000, guid: eae6522f56be32c4b9b7cebf86383411, type: 2}
-  blockType: 4
-  offset: {x: 12, y: -36, z: 0}
+  blockType: 2
+  offset: {x: 0, y: -18, z: 0}
   octives: 8
   scale: 0.001
   hightScale: 10
