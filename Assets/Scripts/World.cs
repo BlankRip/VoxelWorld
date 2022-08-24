@@ -7,13 +7,14 @@ using BlockyWorld.Perlin;
 namespace BlockyWorld.WorldBuilding {
     public class World : MonoBehaviour
     {
-        public static Vector3 worldDimensions = new Vector3(10, 10, 10);
+        public static Vector3 worldDimensions = new Vector3(4, 4, 4);
         public static Vector3Int chunkDimensions = new Vector3Int(10, 10, 10);
 
         public static PerlinSettings surfaceSettings;
         public static PerlinSettings stoneSettings;
         public static PerlinSettings diamondTopSettings;
         public static PerlinSettings diamondBottomSettings;
+        public static PerlinSettings caveSettings;
 
         [SerializeField] GameObject chunkPrefab;
         [SerializeField] GameObject loadingCamera;
@@ -25,6 +26,7 @@ namespace BlockyWorld.WorldBuilding {
         [SerializeField] PerlinGrapher stoneGrapher;
         [SerializeField] PerlinGrapher diamondTopGrapher;
         [SerializeField] PerlinGrapher diamondBottomGrapher;
+        [SerializeField] Perlin3DGrapher caveGrapher;
 
 
         private void Start() {
@@ -33,6 +35,7 @@ namespace BlockyWorld.WorldBuilding {
             stoneSettings = new PerlinSettings(stoneGrapher.settings);
             diamondTopSettings = new PerlinSettings(diamondTopGrapher.settings);
             diamondBottomSettings = new PerlinSettings(diamondBottomGrapher.settings);
+            caveSettings = new PerlinSettings(caveGrapher.settings);
             StartCoroutine(BuildWorld());
         }
 
@@ -54,7 +57,7 @@ namespace BlockyWorld.WorldBuilding {
             float zPos = (worldDimensions.z * chunkDimensions.z)/2;
             Chunk c = chunkPrefab.GetComponent<Chunk>();
             float yPos = MeshUtils.fBM(xPos, zPos, surfaceSettings.octives, surfaceSettings.scale, 
-                surfaceSettings.hightScale, surfaceSettings.heightOffset) + 6;
+                surfaceSettings.heightScale, surfaceSettings.heightOffset) + 6;
             firstPersonController.transform.position = new Vector3(xPos, yPos, zPos);
             firstPersonController.SetActive(true);
             loadingBar.gameObject.SetActive(false);

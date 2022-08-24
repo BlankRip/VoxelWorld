@@ -352,9 +352,10 @@ MonoBehaviour:
   settings:
     octives: 8
     scale: 0.001
-    hightScale: 10
+    heightScale: 10
     heightOffset: -18
     probability: 1
+    drawCutoff: 0
   lr: {fileID: 211635176}
 --- !u!4 &211635178
 Transform:
@@ -856,9 +857,10 @@ MonoBehaviour:
   settings:
     octives: 8
     scale: 0.003
-    hightScale: 10
+    heightScale: 10
     heightOffset: -34.11
     probability: 0.2
+    drawCutoff: 0
   lr: {fileID: 683022775}
 --- !u!1 &983223232
 GameObject:
@@ -897,6 +899,7 @@ MonoBehaviour:
   stoneGrapher: {fileID: 1095309460}
   diamondTopGrapher: {fileID: 683022776}
   diamondBottomGrapher: {fileID: 2103199328}
+  caveGrapher: {fileID: 6694193004015148943, guid: ffdcae20c9f78ee4dbd1e7df26209e85, type: 3}
 --- !u!4 &983223234
 Transform:
   m_ObjectHideFlags: 0
@@ -1205,9 +1208,10 @@ MonoBehaviour:
   settings:
     octives: 8
     scale: 0.001
-    hightScale: 10
+    heightScale: 10
     heightOffset: -28
     probability: 0.3
+    drawCutoff: 0
   lr: {fileID: 1095309459}
 --- !u!4 &1095309461
 Transform:
@@ -1836,9 +1840,10 @@ MonoBehaviour:
   settings:
     octives: 8
     scale: 0.002
-    hightScale: 10
+    heightScale: 10
     heightOffset: -41.24
     probability: 1
+    drawCutoff: 0
   lr: {fileID: 2103199327}
 --- !u!1001 &8271365410573696954
 PrefabInstance:

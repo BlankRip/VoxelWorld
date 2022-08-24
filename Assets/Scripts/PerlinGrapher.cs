@@ -30,7 +30,7 @@ namespace BlockyWorld.Perlin {
             int z = 11;
             Vector3[] positions = new Vector3[lr.positionCount];
             for (int x = 0; x < lr.positionCount; x++) {
-                float y = MeshUtils.fBM(x, z, settings.octives, settings.scale, settings.hightScale, settings.heightOffset);
+                float y = MeshUtils.fBM(x, z, settings.octives, settings.scale, settings.heightScale, settings.heightOffset);
                 positions[x] = new Vector3(x, y, z);
             }
             lr.SetPositions(positions);

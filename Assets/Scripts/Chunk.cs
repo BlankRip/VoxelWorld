@@ -37,21 +37,27 @@ namespace BlockyWorld.WorldBuilding {
                 int stoneHeight = 0;
                 int diamondTopHeight = 0;
                 int diamondBottomHeight = 0;
+                int digCave = 0;
                 if(createChunkOnStart) {
                     surfaceHeight = (int)MeshUtils.fBM(x, z, testPerlinSettings.octives, testPerlinSettings.scale,
-                        testPerlinSettings.hightScale, testPerlinSettings.heightOffset);
+                        testPerlinSettings.heightScale, testPerlinSettings.heightOffset);
                 }
                 else {
                     surfaceHeight = (int)MeshUtils.fBM(x, z, World.surfaceSettings.octives, World.surfaceSettings.scale,
-                        World.surfaceSettings.hightScale, World.surfaceSettings.heightOffset);
+                        World.surfaceSettings.heightScale, World.surfaceSettings.heightOffset);
                     stoneHeight = (int)MeshUtils.fBM(x, z, World.stoneSettings.octives, World.stoneSettings.scale,
-                        World.stoneSettings.hightScale, World.stoneSettings.heightOffset);
+                        World.stoneSettings.heightScale, World.stoneSettings.heightOffset);
                     diamondTopHeight = (int)MeshUtils.fBM(x, z, World.diamondTopSettings.octives, World.diamondTopSettings.scale,
-                        World.diamondTopSettings.hightScale, World.diamondTopSettings.heightOffset);
+                        World.diamondTopSettings.heightScale, World.diamondTopSettings.heightOffset);
                     diamondBottomHeight = (int)MeshUtils.fBM(x, z, World.diamondBottomSettings.octives, World.diamondBottomSettings.scale,
-                        World.diamondBottomSettings.hightScale, World.diamondBottomSettings.heightOffset);
+                        World.diamondBottomSettings.heightScale, World.diamondBottomSettings.heightOffset);
+                    digCave = (int)MeshUtils.fBM3D(x, y, z, World.caveSettings.octives, World.caveSettings.scale,
+                        World.caveSettings.heightScale, World.caveSettings.heightOffset);
                 }
-                if(surfaceHeight == y) {
+
+                if(digCave < World.caveSettings.drawCutoff) {
+                    chunkData[i] = BlockStaticData.BlockType.Air;
+                } else if(surfaceHeight == y) {
                     chunkData[i] = BlockStaticData.BlockType.GrassSide;
                 } else if ((y < diamondTopHeight) && (y > diamondBottomHeight) &&  (UnityEngine.Random.Range(0.0f, 1.0f) < World.diamondTopSettings.probability)) {
                     chunkData[i] = BlockStaticData.BlockType.Diamond;
