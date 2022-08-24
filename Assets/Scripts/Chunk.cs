@@ -25,6 +25,7 @@ namespace BlockyWorld.WorldBuilding {
         //Flat to 3d x = i % width (3d.x);  y = i/width(3d.x) % height (3d.y);   z = i / (width (3d.x) * height (3d.y))
         [HideInInspector] public BlockStaticData.BlockType[] chunkData;
         [HideInInspector] public Vector3 worldPosition;
+        private MeshRenderer meshRenderer;
 
         void BuildChunkData() {
             int blockCount = chunkSize.x * chunkSize.y * chunkSize.z;
@@ -81,12 +82,16 @@ namespace BlockyWorld.WorldBuilding {
                 CreateChunk(chunkSize, transform.position);
         }
 
+        public void SetMeshVisibility(bool enabled) {
+            meshRenderer.enabled = enabled;
+        }
+
         public void CreateChunk(Vector3Int dimensions, Vector3 postion) {
             worldPosition = postion;
             chunkSize = dimensions;
 
             MeshFilter meshFilter = gameObject.AddComponent<MeshFilter>();
-            MeshRenderer meshRenderer = gameObject.AddComponent<MeshRenderer>();
+            meshRenderer = gameObject.AddComponent<MeshRenderer>();
             meshRenderer.material = atlas;
             blocks = new Block[chunkSize.x, chunkSize.y, chunkSize.z];
             BuildChunkData();
