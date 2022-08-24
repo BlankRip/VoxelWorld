@@ -33,6 +33,11 @@ namespace BlockyWorld.WorldBuilding {
                 int x = (i % chunkSize.x) + (int)worldPosition.x;
                 int y = ((i / chunkSize.x) % chunkSize.y) + (int)worldPosition.y;
                 int z = (i / (chunkSize.x * chunkSize.z)) + (int)worldPosition.z;
+                if(y <= 1) {
+                    chunkData[i] = BlockStaticData.BlockType.BedRock;
+                    continue;
+                }
+
                 int surfaceHeight = 0;
                 int stoneHeight = 0;
                 int diamondTopHeight = 0;
