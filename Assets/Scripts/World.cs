@@ -65,6 +65,8 @@ namespace BlockyWorld.WorldBuilding {
                     chunks[position].SetMeshVisibility(true);
                 }
             }
+            if(!chunkColumns.Contains(new Vector2Int(x, z)))
+                chunkColumns.Add(new Vector2Int(x, z));
         }
 
         private IEnumerator BuildWorld() {
@@ -108,8 +110,28 @@ namespace BlockyWorld.WorldBuilding {
                     int posX = (int)(firstPersonController.transform.position.x / chunkDimensions.x) * chunkDimensions.x;
                     int posZ = (int)(firstPersonController.transform.position.z / chunkDimensions.z) * chunkDimensions.z;
                     buildQue.Enqueue(BuildRecursiveWorld(posX, posZ, drawRadius));
+                    buildQue.Enqueue(HideColumns(posX, posZ));
                 }
                 yield return updateGap;
+            }
+        }
+
+        public void HideChunkColumn(int x, int z) {
+            for (int y = 0; y < worldDimensions.y; y++) {
+                Vector3Int postion = new Vector3Int(x, y * chunkDimensions.y, z);
+                if(chunkChecker.Contains(postion))
+                    chunks[postion].SetMeshVisibility(false);
+            }
+        }
+
+        private IEnumerator HideColumns(int x, int z) {
+            Vector2Int fpcPos = new Vector2Int(x, z);
+            float distCheck = drawRadius * drawRadius * playerDistCheckerValue;
+            foreach (Vector2Int cc in chunkColumns) {
+                if((cc - fpcPos).sqrMagnitude >= distCheck) {
+                    HideChunkColumn(cc.x, cc.y);
+                }
+                yield return null;
             }
         }
 
