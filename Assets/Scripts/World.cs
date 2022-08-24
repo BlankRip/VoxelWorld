@@ -7,7 +7,7 @@ using BlockyWorld.Perlin;
 namespace BlockyWorld.WorldBuilding {
     public class World : MonoBehaviour
     {
-        public static Vector3 worldDimensions = new Vector3(4, 4, 4);
+        public static Vector3Int worldDimensions = new Vector3Int(4, 4, 4);
         public static Vector3Int chunkDimensions = new Vector3Int(10, 10, 10);
 
         public static PerlinSettings surfaceSettings;
@@ -30,7 +30,7 @@ namespace BlockyWorld.WorldBuilding {
 
 
         private void Start() {
-            loadingBar.maxValue = worldDimensions.x * worldDimensions.y * worldDimensions.z;
+            loadingBar.maxValue = worldDimensions.x * worldDimensions.z;
             surfaceSettings = new PerlinSettings(surfaceGrapher.settings);
             stoneSettings = new PerlinSettings(stoneGrapher.settings);
             diamondTopSettings = new PerlinSettings(diamondTopGrapher.settings);
@@ -39,26 +39,30 @@ namespace BlockyWorld.WorldBuilding {
             StartCoroutine(BuildWorld());
         }
 
+        void BuildChunkColumn(int x, int z) {
+            for (int y = 0; y < worldDimensions.y; y++) {
+                Chunk chunk = Instantiate(chunkPrefab).GetComponent<Chunk>();
+                Vector3Int position = new Vector3Int(x * chunkDimensions.x, y * chunkDimensions.y, z * chunkDimensions.z);
+                chunk.CreateChunk(chunkDimensions, position);
+            }
+        }
+
         IEnumerator BuildWorld() {
             for (int z = 0; z < worldDimensions.z; z++) {
-                for (int y = 0; y < worldDimensions.y; y++) {
-                    for (int x = 0; x < worldDimensions.x; x++) {
-                        Chunk chunk = Instantiate(chunkPrefab).GetComponent<Chunk>();
-                        Vector3 position = new Vector3(x * chunkDimensions.x, y * chunkDimensions.y, z * chunkDimensions.z);
-                        chunk.CreateChunk(chunkDimensions, position);
-                        loadingBar.value++;
-                        yield return null;
-                    }
+                for (int x = 0; x < worldDimensions.x; x++) {
+                    BuildChunkColumn(x, z);
+                    loadingBar.value++;
+                    yield return null;
                 }
             }
 
             loadingCamera.SetActive(false);
-            float xPos = (worldDimensions.x * chunkDimensions.x)/2;
-            float zPos = (worldDimensions.z * chunkDimensions.z)/2;
+            int xPos = (worldDimensions.x * chunkDimensions.x)/2;
+            int zPos = (worldDimensions.z * chunkDimensions.z)/2;
             Chunk c = chunkPrefab.GetComponent<Chunk>();
-            float yPos = MeshUtils.fBM(xPos, zPos, surfaceSettings.octives, surfaceSettings.scale, 
+            int yPos = (int)MeshUtils.fBM(xPos, zPos, surfaceSettings.octives, surfaceSettings.scale, 
                 surfaceSettings.heightScale, surfaceSettings.heightOffset) + 6;
-            firstPersonController.transform.position = new Vector3(xPos, yPos, zPos);
+            firstPersonController.transform.position = new Vector3Int(xPos, yPos, zPos);
             firstPersonController.SetActive(true);
             loadingBar.gameObject.SetActive(false);
         }

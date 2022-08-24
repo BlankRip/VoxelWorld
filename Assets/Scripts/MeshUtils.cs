@@ -19,14 +19,13 @@ namespace BlockyWorld {
 
         public static float fBM3D(float x, float y, float z, int octives, float scale, float hightScale, float heightOffset) {
             float xy = fBM(x, y, octives, scale, hightScale, heightOffset);
-            float yx = fBM(y, x, octives, scale, hightScale, heightOffset);
             float yz = fBM(y, z, octives, scale, hightScale, heightOffset);
+            float xz = fBM(x, z, octives, scale, hightScale, heightOffset);
+            float yx = fBM(y, x, octives, scale, hightScale, heightOffset);
             float zy = fBM(z, y, octives, scale, hightScale, heightOffset);
             float zx = fBM(z, x, octives, scale, hightScale, heightOffset);
-            float xz = fBM(x, z, octives, scale, hightScale, heightOffset);
 
-            float totalAverage = (xy + yx + yz + zy + zx + xz) / 6.0f;
-            return totalAverage;
+            return (xy + yz + xz + yx + zy + zx) / 6.0f;
         }
 
         public static Mesh MergeMeshes(Mesh[] meshes) {
