@@ -5,7 +5,6 @@ using Unity.Collections;
 using Unity.Jobs;
 using UnityEngine;
 using UnityEngine.Rendering;
-using BlockyWorld.Perlin;
 
 
 namespace BlockyWorld.WorldBuilding {
@@ -14,18 +13,43 @@ namespace BlockyWorld.WorldBuilding {
         [Header("Chunk Data")]
         public Vector3Int chunkSize = new Vector3Int(2, 2, 2);
         [SerializeField] Material atlas;
-        [SerializeField] BlockStaticData.BlockType baseBlockType = BlockStaticData.BlockType.Dirt;
 
         private Block[,,] blocks;
         //Flaten 3d array [x + width(3d.x) * (y + depth(3d.z) * z)] = [x, y, z] in 3d array
         //Flat to 3d x = i % width (3d.x);  y = i/width(3d.x) % height (3d.y);   z = i / (width (3d.x) * height (3d.y))
         [HideInInspector] public BlockStaticData.BlockType[] chunkData;
         [HideInInspector] public Vector3 worldPosition;
-        private MeshRenderer meshRenderer;
+        [HideInInspector] public MeshRenderer meshRenderer;
 
         CalculateBlockTypes calculateBlockTypes;
         JobHandle jobHandle;
         public NativeArray<Unity.Mathematics.Random> randomArray {get; private set;}
+
+        void BuildChunkData() {
+            int blockCount = chunkSize.x * chunkSize.y * chunkSize.z;
+            chunkData = new BlockStaticData.BlockType[blockCount];
+            NativeArray<BlockStaticData.BlockType> blockTypes = new NativeArray<BlockStaticData.BlockType>(chunkData, Allocator.Persistent);
+
+            Unity.Mathematics.Random[] tempRandomArray = new Unity.Mathematics.Random[blockCount];
+            System.Random seed = new System.Random();
+            for (int i = 0; i < blockCount; i++)
+                tempRandomArray[i] = new Unity.Mathematics.Random((uint)seed.Next());
+            randomArray = new NativeArray<Unity.Mathematics.Random>(tempRandomArray, Allocator.Persistent);
+
+            calculateBlockTypes = new CalculateBlockTypes() {
+                cData = blockTypes,
+                chunkSize = new Vector2Int(this.chunkSize.x, this.chunkSize.y),
+                location = worldPosition,
+                randoms = randomArray
+            };
+
+            jobHandle = calculateBlockTypes.Schedule(chunkData.Length, 64);
+            jobHandle.Complete();
+            calculateBlockTypes.cData.CopyTo(chunkData);
+
+            blockTypes.Dispose();
+            randomArray.Dispose();
+        }
 
         struct CalculateBlockTypes : IJobParallelFor
         {
@@ -60,9 +84,9 @@ namespace BlockyWorld.WorldBuilding {
                     cData[i] = BlockStaticData.BlockType.Air;
                 } else if(surfaceHeight == y) {
                     cData[i] = BlockStaticData.BlockType.GrassSide;
-                } else if ((y < diamondTopHeight) && (y > diamondBottomHeight) &&  (random.NextFloat(0.0f, 1.0f) < World.diamondTopSettings.probability)) {
+                } else if ((y < diamondTopHeight) && (y > diamondBottomHeight) &&  (random.NextFloat(1) < World.diamondTopSettings.probability)) {
                     cData[i] = BlockStaticData.BlockType.Diamond;
-                } else if(y < stoneHeight && (random.NextFloat(0.0f, 1.0f) < World.stoneSettings.probability)) {
+                } else if(y < stoneHeight && (random.NextFloat(1) < World.stoneSettings.probability)) {
                     cData[i] = BlockStaticData.BlockType.Stone;
                 } else if(surfaceHeight > y) {
                     cData[i] = BlockStaticData.BlockType.Dirt;
@@ -70,39 +94,6 @@ namespace BlockyWorld.WorldBuilding {
                     cData[i] = BlockStaticData.BlockType.Air;
                 }
             }
-        }
-
-        void BuildChunkData() {
-            int blockCount = chunkSize.x * chunkSize.y * chunkSize.z;
-            chunkData = new BlockStaticData.BlockType[blockCount];
-            NativeArray<BlockStaticData.BlockType> blockTypes = new NativeArray<BlockStaticData.BlockType>(chunkData, Allocator.Persistent);
-
-            Unity.Mathematics.Random[] tempRandomArray = new Unity.Mathematics.Random[blockCount];
-            System.Random seed = new System.Random();
-            for (int i = 0; i < blockCount; i++)
-                tempRandomArray[i] = new Unity.Mathematics.Random((uint)seed.Next());
-            randomArray = new NativeArray<Unity.Mathematics.Random>(tempRandomArray, Allocator.Persistent);
-
-            calculateBlockTypes = new CalculateBlockTypes() {
-                cData = blockTypes,
-                chunkSize = new Vector2Int(this.chunkSize.x, this.chunkSize.y),
-                location = worldPosition,
-                randoms = randomArray
-            };
-
-            jobHandle = calculateBlockTypes.Schedule(chunkData.Length, 64);
-            jobHandle.Complete();
-            calculateBlockTypes.cData.CopyTo(chunkData);
-
-            blockTypes.Dispose();
-            randomArray.Dispose();
-        }
-
-        private void Start() {
-        }
-
-        public void SetMeshVisibility(bool enabled) {
-            meshRenderer.enabled = enabled;
         }
 
         public void CreateChunk(Vector3Int dimensions, Vector3 postion) {
@@ -127,7 +118,7 @@ namespace BlockyWorld.WorldBuilding {
             for (int z = 0; z < chunkSize.z; z++) {
                 for (int y = 0; y < chunkSize.y; y++) {
                     for (int x = 0; x < chunkSize.x; x++) {
-                        blocks[x,y,z] = new Block(new Vector3(x, y, z) + worldPosition, chunkData[(x + (chunkSize.x * (y + (chunkSize.z * z))))], this);
+                        blocks[x,y,z] = new Block(new Vector3(x, y, z) + worldPosition, chunkData[(x + chunkSize.x * (y + chunkSize.z * z))], this);
                         if(blocks[x, y, z].mesh != null) {
                             inputMeshes.Add(blocks[x, y, z].mesh);
                             int vertexCount = blocks[x, y, z].mesh.vertexCount;
@@ -147,7 +138,7 @@ namespace BlockyWorld.WorldBuilding {
             jobs.outputMesh = outputMeshData[0];
             jobs.outputMesh.SetIndexBufferParams(triStart, IndexFormat.UInt32);
             jobs.outputMesh.SetVertexBufferParams(vertexStart,
-                                                new VertexAttributeDescriptor(VertexAttribute.Position, stream: 0), 
+                                                new VertexAttributeDescriptor(VertexAttribute.Position), 
                                                 new VertexAttributeDescriptor(VertexAttribute.Normal, stream: 1),
                                                 new VertexAttributeDescriptor(VertexAttribute.TexCoord0, stream: 2));
             JobHandle handle = jobs.Schedule(inputMeshes.Count, 4);

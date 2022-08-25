@@ -6,7 +6,7 @@ namespace BlockyWorld.Perlin {
     [ExecuteInEditMode]
     public class Perlin3DGrapher : MonoBehaviour
     {
-        public PerlinSettings settings = new PerlinSettings(2, 0.085f, 4, 2.14f, 1.0f, 5.49f);
+        public PerlinSettings settings = new PerlinSettings(3, 0.085f, 2, 2.14f, 1.0f, 5.49f);
 
         private Vector3Int dimensions = new Vector3Int(10, 10, 10);
 

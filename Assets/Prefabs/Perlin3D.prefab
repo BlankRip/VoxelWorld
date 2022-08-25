@@ -71249,12 +71249,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   settings:
-    octives: 2
-    scale: 0.092
-    heightScale: 3
+    octives: 3
+    scale: 0.03
+    heightScale: 2
     heightOffset: 1.24
     probability: 1
-    drawCutoff: 2.65
+    drawCutoff: 2.79
 --- !u!1 &6696437162847525288
 GameObject:
   m_ObjectHideFlags: 0

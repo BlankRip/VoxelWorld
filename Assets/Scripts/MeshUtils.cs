@@ -17,15 +17,15 @@ namespace BlockyWorld {
             return total + heightOffset;
         }
 
-        public static float fBM3D(float x, float y, float z, int octives, float scale, float hightScale, float heightOffset) {
-            float xy = fBM(x, y, octives, scale, hightScale, heightOffset);
-            float yz = fBM(y, z, octives, scale, hightScale, heightOffset);
-            float xz = fBM(x, z, octives, scale, hightScale, heightOffset);
-            float yx = fBM(y, x, octives, scale, hightScale, heightOffset);
-            float zy = fBM(z, y, octives, scale, hightScale, heightOffset);
-            float zx = fBM(z, x, octives, scale, hightScale, heightOffset);
+        public static float fBM3D(float x, float y, float z, int octives, float scale, float heightScale, float heightOffset) {
+            float XY = fBM(x, y, octives, scale, heightScale, heightOffset);
+            float YZ = fBM(y, z, octives, scale, heightScale, heightOffset);
+            float XZ = fBM(x, z, octives, scale, heightScale, heightOffset);
+            float YX = fBM(y, x, octives, scale, heightScale, heightOffset);
+            float ZY = fBM(z, y, octives, scale, heightScale, heightOffset);
+            float ZX = fBM(z, x, octives, scale, heightScale, heightOffset);
 
-            return (xy + yz + xz + yx + zy + zx) / 6.0f;
+            return (XY + YZ + XZ + YX + ZY + ZX) / 6.0f;
         }
 
         public static Mesh MergeMeshes(Mesh[] meshes) {
@@ -64,11 +64,11 @@ namespace BlockyWorld {
                 meshes[i] = null;
             }
             
-            ExtractArrays(pointsOrder, ref mesh);
+            ExtractArrays(pointsOrder, mesh);
             mesh.triangles = tris.ToArray();
             return mesh;
         }
-        private static void ExtractArrays(Dictionary<VertexData, int> list, ref Mesh mesh) {
+        private static void ExtractArrays(Dictionary<VertexData, int> list, Mesh mesh) {
             List<Vector3> verts = new List<Vector3>();
             List<Vector3> norms = new List<Vector3>();
             List<Vector2> uv = new List<Vector2>();

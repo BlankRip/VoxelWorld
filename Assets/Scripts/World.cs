@@ -39,9 +39,9 @@ namespace BlockyWorld.WorldBuilding {
 
         private void Start() {
             if(chunkDimensions.x >= chunkDimensions.z)
-                playerDistCheckerValue = chunkDimensions.z * chunkDimensions.z;
+                playerDistCheckerValue = chunkDimensions.z;
             else
-                playerDistCheckerValue = chunkDimensions.x * chunkDimensions.x;
+                playerDistCheckerValue = chunkDimensions.x;
 
             loadingBar.maxValue = worldDimensions.x * worldDimensions.z;
             surfaceSettings = new PerlinSettings(surfaceGrapher.settings);
@@ -50,6 +50,75 @@ namespace BlockyWorld.WorldBuilding {
             diamondBottomSettings = new PerlinSettings(diamondBottomGrapher.settings);
             caveSettings = new PerlinSettings(caveGrapher.settings);
             StartCoroutine(BuildWorld());
+        }
+
+        private IEnumerator BuildWorld() {
+            for (int z = 0; z < worldDimensions.z; z++) {
+                for (int x = 0; x < worldDimensions.x; x++) {
+                    BuildChunkColumn(x * chunkDimensions.x, z * chunkDimensions.z);
+                    loadingBar.value++;
+                    yield return null;
+                }
+            }
+
+            int xPos = (worldDimensions.x * chunkDimensions.x)/2;
+            int zPos = (worldDimensions.z * chunkDimensions.z)/2;
+            int yPos = (int)MeshUtils.fBM(xPos, zPos, surfaceSettings.octives, surfaceSettings.scale, 
+                surfaceSettings.heightScale, surfaceSettings.heightOffset) + 6;
+            lastBuildPosition = new Vector3Int(xPos, yPos, zPos);
+            firstPersonController.transform.position = lastBuildPosition;
+
+            loadingCamera.SetActive(false);
+            loadingBar.gameObject.SetActive(false);
+            firstPersonController.SetActive(true);
+
+            StartCoroutine(BuildCoordinator());
+            StartCoroutine(UpdateWorld());
+            StartCoroutine(BuildExtraWorld());
+        }
+
+        private IEnumerator BuildCoordinator() {
+            while(true) {
+                while(buildQue.Count > 0)
+                    yield return StartCoroutine(buildQue.Dequeue());
+                yield return null;
+            }
+        }
+
+        WaitForSeconds updateGap = new WaitForSeconds(0.5f);
+        private IEnumerator UpdateWorld() {
+            while(true) {
+                if((lastBuildPosition - firstPersonController.transform.position).magnitude > playerDistCheckerValue) {
+                    lastBuildPosition = Vector3Int.CeilToInt(firstPersonController.transform.position);
+                    int posX = (int)(firstPersonController.transform.position.x / chunkDimensions.x) * chunkDimensions.x;
+                    int posZ = (int)(firstPersonController.transform.position.z / chunkDimensions.z) * chunkDimensions.z;
+                    buildQue.Enqueue(BuildRecursiveWorld(posX, posZ, drawRadius));
+                    buildQue.Enqueue(HideColumns(posX, posZ));
+                }
+                yield return updateGap;
+            }
+        }
+
+        private IEnumerator BuildRecursiveWorld(int x, int z, int radius) {
+            int nextRadius = radius - 1;
+            if(radius <= 0)
+                yield break;
+
+            BuildChunkColumn(x, z + chunkDimensions.z);
+            buildQue.Enqueue(BuildRecursiveWorld(x, z + chunkDimensions.z, nextRadius));
+            yield return null;
+
+            BuildChunkColumn(x, z - chunkDimensions.z);
+            buildQue.Enqueue(BuildRecursiveWorld(x, z - chunkDimensions.z, nextRadius));
+            yield return null;
+
+            BuildChunkColumn(x + chunkDimensions.x, z);
+            buildQue.Enqueue(BuildRecursiveWorld(x + chunkDimensions.x, z, nextRadius));
+            yield return null;
+
+            BuildChunkColumn(x - chunkDimensions.x, z);
+            buildQue.Enqueue(BuildRecursiveWorld(x - chunkDimensions.x, z, nextRadius));
+            yield return null;
         }
 
         void BuildChunkColumn(int x, int z, bool meshEnabled = true) {
@@ -63,7 +132,7 @@ namespace BlockyWorld.WorldBuilding {
                     chunkChecker.Add(position);
                     chunks.Add(position, chunk);
                 }
-                chunks[position].SetMeshVisibility(meshEnabled);
+                chunks[position].meshRenderer.enabled = meshEnabled;
             }
             if(!chunkColumns.Contains(new Vector2Int(x, z)))
                 chunkColumns.Add(new Vector2Int(x, z));
@@ -71,117 +140,40 @@ namespace BlockyWorld.WorldBuilding {
 
         private IEnumerator BuildExtraWorld() {
             int zEnd = worldDimensions.z + extraWorldDimensions.z;
-            int zStart = worldDimensions.z;
+            int zStart = worldDimensions.z - 1;
             int xEnd = worldDimensions.x + extraWorldDimensions.x;
-            int xStart = worldDimensions.x;
+            int xStart = worldDimensions.x - 1;
 
             for (int z = zStart; z < zEnd; z++) {
                 for (int x = 0; x < xEnd; x++) {
-                    BuildChunkColumn(x * chunkDimensions.x, z * chunkDimensions.z);
-                    loadingBar.value++;
+                    BuildChunkColumn(x * chunkDimensions.x, z * chunkDimensions.z, false);
                     yield return null;
                 }
             }
             for (int z = 0; z < zEnd; z++) {
                 for (int x = xStart; x < xEnd; x++) {
-                    BuildChunkColumn(x * chunkDimensions.x, z * chunkDimensions.z);
-                    loadingBar.value++;
+                    BuildChunkColumn(x * chunkDimensions.x, z * chunkDimensions.z, false);
                     yield return null;
                 }
-            }
-        }
-
-        private IEnumerator BuildWorld() {
-            for (int z = 0; z < worldDimensions.z; z++) {
-                for (int x = 0; x < worldDimensions.x; x++) {
-                    BuildChunkColumn(x * chunkDimensions.x, z * chunkDimensions.z);
-                    loadingBar.value++;
-                    yield return null;
-                }
-            }
-
-            loadingCamera.SetActive(false);
-            int xPos = (worldDimensions.x * chunkDimensions.x)/2;
-            int zPos = (worldDimensions.z * chunkDimensions.z)/2;
-            Chunk c = chunkPrefab.GetComponent<Chunk>();
-            int yPos = (int)MeshUtils.fBM(xPos, zPos, surfaceSettings.octives, surfaceSettings.scale, 
-                surfaceSettings.heightScale, surfaceSettings.heightOffset) + 6;
-            lastBuildPosition = new Vector3Int(xPos, yPos, zPos);
-            firstPersonController.transform.position = lastBuildPosition;
-            firstPersonController.SetActive(true);
-            loadingBar.gameObject.SetActive(false);
-            StartCoroutine(BuildCoordinator());
-            StartCoroutine(UpdateWorld());
-            StartCoroutine(BuildExtraWorld());
-        }
-
-        private IEnumerator BuildCoordinator() {
-            while(true) {
-                while(buildQue.Count > 0) {
-                    yield return StartCoroutine(buildQue.Dequeue());
-                }
-                yield return null;
-            }
-        }
-
-        private IEnumerator UpdateWorld() {
-            WaitForSeconds updateGap = new WaitForSeconds(0.5f);
-            while(true) {
-                float dist = (lastBuildPosition - firstPersonController.transform.position).sqrMagnitude;
-                if(dist > playerDistCheckerValue) {
-                    lastBuildPosition = Vector3Int.CeilToInt(firstPersonController.transform.position);
-                    int posX = (int)(firstPersonController.transform.position.x / chunkDimensions.x) * chunkDimensions.x;
-                    int posZ = (int)(firstPersonController.transform.position.z / chunkDimensions.z) * chunkDimensions.z;
-                    buildQue.Enqueue(BuildRecursiveWorld(posX, posZ, drawRadius));
-                    //buildQue.Enqueue(HideColumns(posX, posZ));
-                }
-                yield return updateGap;
-            }
-        }
-
-        public void HideChunkColumn(int x, int z) {
-            for (int y = 0; y < worldDimensions.y; y++) {
-                Vector3Int postion = new Vector3Int(x, y * chunkDimensions.y, z);
-                if(chunkChecker.Contains(postion))
-                    chunks[postion].SetMeshVisibility(false);
             }
         }
 
         private IEnumerator HideColumns(int x, int z) {
             Vector2Int fpcPos = new Vector2Int(x, z);
-            float distCheck = drawRadius * drawRadius * playerDistCheckerValue;
             foreach (Vector2Int cc in chunkColumns) {
-                if((cc - fpcPos).sqrMagnitude >= distCheck) {
+                if((cc - fpcPos).magnitude >= drawRadius * playerDistCheckerValue) {
                     HideChunkColumn(cc.x, cc.y);
                 }
-                yield return null;
             }
+            yield return null;
         }
 
-        private IEnumerator BuildRecursiveWorld(int x, int z, int radius) {
-            int nextRadius = radius - 1;
-            if(radius <= 0)
-                yield break;
-
-            int varialbleValue = z + chunkDimensions.z;
-            BuildChunkColumn(x, varialbleValue);
-            buildQue.Enqueue(BuildRecursiveWorld(x, varialbleValue, nextRadius));
-            yield return null;
-
-            varialbleValue = z - chunkDimensions.z;
-            BuildChunkColumn(x, varialbleValue);
-            buildQue.Enqueue(BuildRecursiveWorld(x, varialbleValue, nextRadius));
-            yield return null;
-
-            varialbleValue = x + chunkDimensions.x;
-            BuildChunkColumn(varialbleValue, z);
-            buildQue.Enqueue(BuildRecursiveWorld(varialbleValue, z, nextRadius));
-            yield return null;
-
-            varialbleValue = x - chunkDimensions.x;
-            BuildChunkColumn(varialbleValue, z);
-            buildQue.Enqueue(BuildRecursiveWorld(varialbleValue, z, nextRadius));
-            yield return null;
+        private void HideChunkColumn(int x, int z) {
+            for (int y = 0; y < worldDimensions.y; y++) {
+                Vector3Int postion = new Vector3Int(x, y * chunkDimensions.y, z);
+                if(chunkChecker.Contains(postion))
+                    chunks[postion].meshRenderer.enabled = false;
+            }
         }
     }
 }
