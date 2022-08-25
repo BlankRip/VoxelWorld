@@ -25,13 +25,14 @@ namespace BlockyWorld.WorldBuilding {
 
         CalculateBlockTypes calculateBlockTypes;
         JobHandle jobHandle;
+        public NativeArray<Unity.Mathematics.Random> randomArray {get; private set;}
 
         struct CalculateBlockTypes : IJobParallelFor
         {
             public NativeArray<BlockStaticData.BlockType> cData;
             public Vector2Int chunkSize;
             public Vector3 location;
-            public Unity.Mathematics.Random random;
+            public NativeArray<Unity.Mathematics.Random> randoms;
 
             public void Execute(int i) {
                 int x = (i % chunkSize.x) + (int)location.x;
@@ -42,7 +43,7 @@ namespace BlockyWorld.WorldBuilding {
                     return;
                 }
 
-                random = new Unity.Mathematics.Random(1);
+                Unity.Mathematics.Random random = randoms[i];
                 
                 int surfaceHeight = (int)MeshUtils.fBM(x, z, World.surfaceSettings.octives, World.surfaceSettings.scale,
                     World.surfaceSettings.heightScale, World.surfaceSettings.heightOffset);
@@ -75,15 +76,26 @@ namespace BlockyWorld.WorldBuilding {
             int blockCount = chunkSize.x * chunkSize.y * chunkSize.z;
             chunkData = new BlockStaticData.BlockType[blockCount];
             NativeArray<BlockStaticData.BlockType> blockTypes = new NativeArray<BlockStaticData.BlockType>(chunkData, Allocator.Persistent);
+
+            Unity.Mathematics.Random[] tempRandomArray = new Unity.Mathematics.Random[blockCount];
+            System.Random seed = new System.Random();
+            for (int i = 0; i < blockCount; i++)
+                tempRandomArray[i] = new Unity.Mathematics.Random((uint)seed.Next());
+            randomArray = new NativeArray<Unity.Mathematics.Random>(tempRandomArray, Allocator.Persistent);
+
             calculateBlockTypes = new CalculateBlockTypes() {
                 cData = blockTypes,
                 chunkSize = new Vector2Int(this.chunkSize.x, this.chunkSize.y),
-                location = worldPosition
+                location = worldPosition,
+                randoms = randomArray
             };
+
             jobHandle = calculateBlockTypes.Schedule(chunkData.Length, 64);
             jobHandle.Complete();
             calculateBlockTypes.cData.CopyTo(chunkData);
+
             blockTypes.Dispose();
+            randomArray.Dispose();
         }
 
         private void Start() {

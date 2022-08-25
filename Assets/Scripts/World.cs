@@ -7,7 +7,8 @@ using BlockyWorld.Perlin;
 namespace BlockyWorld.WorldBuilding {
     public class World : MonoBehaviour
     {
-        public static Vector3Int worldDimensions = new Vector3Int(4, 4, 4);
+        public static Vector3Int worldDimensions = new Vector3Int(20, 5, 20);
+        public static Vector3Int extraWorldDimensions = new Vector3Int(10, 5, 10);
         public static Vector3Int chunkDimensions = new Vector3Int(10, 10, 10);
 
         public static PerlinSettings surfaceSettings;
@@ -51,7 +52,7 @@ namespace BlockyWorld.WorldBuilding {
             StartCoroutine(BuildWorld());
         }
 
-        void BuildChunkColumn(int x, int z) {
+        void BuildChunkColumn(int x, int z, bool meshEnabled = true) {
             for (int y = 0; y < worldDimensions.y; y++) {
                 Vector3Int position = new Vector3Int(x, y * chunkDimensions.y, z);
                 if(!chunkChecker.Contains(position)) {
@@ -61,12 +62,33 @@ namespace BlockyWorld.WorldBuilding {
                     
                     chunkChecker.Add(position);
                     chunks.Add(position, chunk);
-                } else {
-                    chunks[position].SetMeshVisibility(true);
                 }
+                chunks[position].SetMeshVisibility(meshEnabled);
             }
             if(!chunkColumns.Contains(new Vector2Int(x, z)))
                 chunkColumns.Add(new Vector2Int(x, z));
+        }
+
+        private IEnumerator BuildExtraWorld() {
+            int zEnd = worldDimensions.z + extraWorldDimensions.z;
+            int zStart = worldDimensions.z;
+            int xEnd = worldDimensions.x + extraWorldDimensions.x;
+            int xStart = worldDimensions.x;
+
+            for (int z = zStart; z < zEnd; z++) {
+                for (int x = 0; x < xEnd; x++) {
+                    BuildChunkColumn(x * chunkDimensions.x, z * chunkDimensions.z);
+                    loadingBar.value++;
+                    yield return null;
+                }
+            }
+            for (int z = 0; z < zEnd; z++) {
+                for (int x = xStart; x < xEnd; x++) {
+                    BuildChunkColumn(x * chunkDimensions.x, z * chunkDimensions.z);
+                    loadingBar.value++;
+                    yield return null;
+                }
+            }
         }
 
         private IEnumerator BuildWorld() {
@@ -90,6 +112,7 @@ namespace BlockyWorld.WorldBuilding {
             loadingBar.gameObject.SetActive(false);
             StartCoroutine(BuildCoordinator());
             StartCoroutine(UpdateWorld());
+            StartCoroutine(BuildExtraWorld());
         }
 
         private IEnumerator BuildCoordinator() {
@@ -110,7 +133,7 @@ namespace BlockyWorld.WorldBuilding {
                     int posX = (int)(firstPersonController.transform.position.x / chunkDimensions.x) * chunkDimensions.x;
                     int posZ = (int)(firstPersonController.transform.position.z / chunkDimensions.z) * chunkDimensions.z;
                     buildQue.Enqueue(BuildRecursiveWorld(posX, posZ, drawRadius));
-                    buildQue.Enqueue(HideColumns(posX, posZ));
+                    //buildQue.Enqueue(HideColumns(posX, posZ));
                 }
                 yield return updateGap;
             }
