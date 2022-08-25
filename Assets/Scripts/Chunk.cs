@@ -16,10 +16,6 @@ namespace BlockyWorld.WorldBuilding {
         [SerializeField] Material atlas;
         [SerializeField] BlockStaticData.BlockType baseBlockType = BlockStaticData.BlockType.Dirt;
 
-        [Header("Testing")]
-        [SerializeField] bool createChunkOnStart;
-        [SerializeField] PerlinSettings testPerlinSettings = new PerlinSettings(8, 0.001f, 10.0f, -18, 1.0f);
-
         private Block[,,] blocks;
         //Flaten 3d array [x + width(3d.x) * (y + depth(3d.z) * z)] = [x, y, z] in 3d array
         //Flat to 3d x = i % width (3d.x);  y = i/width(3d.x) % height (3d.y);   z = i / (width (3d.x) * height (3d.y))
@@ -27,59 +23,70 @@ namespace BlockyWorld.WorldBuilding {
         [HideInInspector] public Vector3 worldPosition;
         private MeshRenderer meshRenderer;
 
-        void BuildChunkData() {
-            int blockCount = chunkSize.x * chunkSize.y * chunkSize.z;
-            chunkData = new BlockStaticData.BlockType[blockCount];
-            for (int i = 0; i < blockCount; i++) {
-                int x = (i % chunkSize.x) + (int)worldPosition.x;
-                int y = ((i / chunkSize.x) % chunkSize.y) + (int)worldPosition.y;
-                int z = (i / (chunkSize.x * chunkSize.z)) + (int)worldPosition.z;
+        CalculateBlockTypes calculateBlockTypes;
+        JobHandle jobHandle;
+
+        struct CalculateBlockTypes : IJobParallelFor
+        {
+            public NativeArray<BlockStaticData.BlockType> cData;
+            public Vector2Int chunkSize;
+            public Vector3 location;
+            public Unity.Mathematics.Random random;
+
+            public void Execute(int i) {
+                int x = (i % chunkSize.x) + (int)location.x;
+                int y = ((i / chunkSize.x) % chunkSize.y) + (int)location.y;
+                int z = (i / (chunkSize.x * chunkSize.y)) + (int)location.z;
                 if(y <= 1) {
-                    chunkData[i] = BlockStaticData.BlockType.BedRock;
-                    continue;
+                    cData[i] = BlockStaticData.BlockType.BedRock;
+                    return;
                 }
 
-                int surfaceHeight = 0;
-                int stoneHeight = 0;
-                int diamondTopHeight = 0;
-                int diamondBottomHeight = 0;
-                int digCave = 0;
-                if(createChunkOnStart) {
-                    surfaceHeight = (int)MeshUtils.fBM(x, z, testPerlinSettings.octives, testPerlinSettings.scale,
-                        testPerlinSettings.heightScale, testPerlinSettings.heightOffset);
-                }
-                else {
-                    surfaceHeight = (int)MeshUtils.fBM(x, z, World.surfaceSettings.octives, World.surfaceSettings.scale,
-                        World.surfaceSettings.heightScale, World.surfaceSettings.heightOffset);
-                    stoneHeight = (int)MeshUtils.fBM(x, z, World.stoneSettings.octives, World.stoneSettings.scale,
-                        World.stoneSettings.heightScale, World.stoneSettings.heightOffset);
-                    diamondTopHeight = (int)MeshUtils.fBM(x, z, World.diamondTopSettings.octives, World.diamondTopSettings.scale,
-                        World.diamondTopSettings.heightScale, World.diamondTopSettings.heightOffset);
-                    diamondBottomHeight = (int)MeshUtils.fBM(x, z, World.diamondBottomSettings.octives, World.diamondBottomSettings.scale,
-                        World.diamondBottomSettings.heightScale, World.diamondBottomSettings.heightOffset);
-                    digCave = (int)MeshUtils.fBM3D(x, y, z, World.caveSettings.octives, World.caveSettings.scale,
-                        World.caveSettings.heightScale, World.caveSettings.heightOffset);
-                }
+                random = new Unity.Mathematics.Random(1);
+                
+                int surfaceHeight = (int)MeshUtils.fBM(x, z, World.surfaceSettings.octives, World.surfaceSettings.scale,
+                    World.surfaceSettings.heightScale, World.surfaceSettings.heightOffset);
+                int stoneHeight = (int)MeshUtils.fBM(x, z, World.stoneSettings.octives, World.stoneSettings.scale,
+                    World.stoneSettings.heightScale, World.stoneSettings.heightOffset);
+                int diamondTopHeight = (int)MeshUtils.fBM(x, z, World.diamondTopSettings.octives, World.diamondTopSettings.scale,
+                    World.diamondTopSettings.heightScale, World.diamondTopSettings.heightOffset);
+                int diamondBottomHeight = (int)MeshUtils.fBM(x, z, World.diamondBottomSettings.octives, World.diamondBottomSettings.scale,
+                    World.diamondBottomSettings.heightScale, World.diamondBottomSettings.heightOffset);
+                int digCave = (int)MeshUtils.fBM3D(x, y, z, World.caveSettings.octives, World.caveSettings.scale,
+                    World.caveSettings.heightScale, World.caveSettings.heightOffset);
 
                 if(digCave < World.caveSettings.drawCutoff) {
-                    chunkData[i] = BlockStaticData.BlockType.Air;
+                    cData[i] = BlockStaticData.BlockType.Air;
                 } else if(surfaceHeight == y) {
-                    chunkData[i] = BlockStaticData.BlockType.GrassSide;
-                } else if ((y < diamondTopHeight) && (y > diamondBottomHeight) &&  (UnityEngine.Random.Range(0.0f, 1.0f) < World.diamondTopSettings.probability)) {
-                    chunkData[i] = BlockStaticData.BlockType.Diamond;
-                } else if(y < stoneHeight && (UnityEngine.Random.Range(0.0f, 1.0f) < World.stoneSettings.probability)) {
-                    chunkData[i] = BlockStaticData.BlockType.Stone;
+                    cData[i] = BlockStaticData.BlockType.GrassSide;
+                } else if ((y < diamondTopHeight) && (y > diamondBottomHeight) &&  (random.NextFloat(0.0f, 1.0f) < World.diamondTopSettings.probability)) {
+                    cData[i] = BlockStaticData.BlockType.Diamond;
+                } else if(y < stoneHeight && (random.NextFloat(0.0f, 1.0f) < World.stoneSettings.probability)) {
+                    cData[i] = BlockStaticData.BlockType.Stone;
                 } else if(surfaceHeight > y) {
-                    chunkData[i] = baseBlockType;
+                    cData[i] = BlockStaticData.BlockType.Dirt;
                 } else {
-                    chunkData[i] = BlockStaticData.BlockType.Air;
+                    cData[i] = BlockStaticData.BlockType.Air;
                 }
             }
         }
 
+        void BuildChunkData() {
+            int blockCount = chunkSize.x * chunkSize.y * chunkSize.z;
+            chunkData = new BlockStaticData.BlockType[blockCount];
+            NativeArray<BlockStaticData.BlockType> blockTypes = new NativeArray<BlockStaticData.BlockType>(chunkData, Allocator.Persistent);
+            calculateBlockTypes = new CalculateBlockTypes() {
+                cData = blockTypes,
+                chunkSize = new Vector2Int(this.chunkSize.x, this.chunkSize.y),
+                location = worldPosition
+            };
+            jobHandle = calculateBlockTypes.Schedule(chunkData.Length, 64);
+            jobHandle.Complete();
+            calculateBlockTypes.cData.CopyTo(chunkData);
+            blockTypes.Dispose();
+        }
+
         private void Start() {
-            if(createChunkOnStart)
-                CreateChunk(chunkSize, transform.position);
         }
 
         public void SetMeshVisibility(bool enabled) {
