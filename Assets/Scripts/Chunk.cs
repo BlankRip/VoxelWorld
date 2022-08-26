@@ -18,7 +18,7 @@ namespace BlockyWorld.WorldBuilding {
         //Flaten 3d array [x + width(3d.x) * (y + depth(3d.z) * z)] = [x, y, z] in 3d array
         //Flat to 3d x = i % width (3d.x);  y = i/width(3d.x) % height (3d.y);   z = i / (width (3d.x) * height (3d.y))
         [HideInInspector] public BlockStaticData.BlockType[] chunkData;
-        [HideInInspector] public BlockStaticData.BlockType[] healthData;
+        [HideInInspector] private BlockStaticData.BlockType[] healthData;
         [HideInInspector] public Vector3 worldPosition;
         [HideInInspector] public MeshRenderer meshRenderer;
 
@@ -26,7 +26,39 @@ namespace BlockyWorld.WorldBuilding {
         JobHandle jobHandle;
         public NativeArray<Unity.Mathematics.Random> randomArray {get; private set;}
 
-        void BuildChunkData() {
+        public void TakeHit(int blockIndex) {
+            int blockHealth = BlockStaticData.blockTypeHealth[(int)chunkData[blockIndex]];
+            if(blockHealth != -1) {
+                if(healthData[blockIndex] == BlockStaticData.BlockType.NoCrack)
+                    StartCoroutine(HealBlock(blockIndex));
+                healthData[blockIndex]++;
+                if(healthData[blockIndex] == BlockStaticData.BlockType.NoCrack + blockHealth)
+                    chunkData[blockIndex] = BlockStaticData.BlockType.Air;
+            }
+        }
+
+        public void ReDrawChunk() {
+            DestroyImmediate(GetComponent<MeshFilter>());
+            DestroyImmediate(GetComponent<MeshRenderer>());
+            DestroyImmediate(GetComponent<Collider>());
+            CreateChunk(chunkSize, worldPosition, true);
+        }
+
+        private WaitForSeconds healTime = new WaitForSeconds(3);
+        public System.Collections.IEnumerator HealBlock(int blockIndex) {
+            yield return healTime;
+            if(chunkData[blockIndex] != BlockStaticData.BlockType.Air) {
+                healthData[blockIndex] = BlockStaticData.BlockType.NoCrack;
+                ReDrawChunk();
+            }
+        }
+
+        public void BuildBlockAt(BlockStaticData.BlockType buildType, int blockIndex) {
+            chunkData[blockIndex] = buildType;
+            healthData[blockIndex] = BlockStaticData.BlockType.NoCrack;
+        }
+
+        private void BuildChunkData() {
             int blockCount = chunkSize.x * chunkSize.y * chunkSize.z;
             chunkData = new BlockStaticData.BlockType[blockCount];
             healthData = new BlockStaticData.BlockType[blockCount];

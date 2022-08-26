@@ -81,37 +81,12 @@ namespace BlockyWorld.WorldBuilding {
                     blockPos.z = (int)(Mathf.Round(hitBlock.z) - hitChunk.worldPosition.z);
                     UpdateIntoNeighbour(ref hitChunk, ref blockPos);
                     int i = blockPos.x + chunkDimensions.z * (blockPos.y + chunkDimensions.z * blockPos.z);
-                    if(leftClick) {
-                        int blockHealth = BlockStaticData.blockTypeHealth[(int)hitChunk.chunkData[i]];
-                        if(blockHealth != -1) {
-                            if(hitChunk.healthData[i] == BlockStaticData.BlockType.NoCrack)
-                                StartCoroutine(HealBlock(hitChunk, i));
-                            hitChunk.healthData[i]++;
-                            if(hitChunk.healthData[i] == BlockStaticData.BlockType.NoCrack + blockHealth)
-                                hitChunk.chunkData[i] = BlockStaticData.BlockType.Air;
-                        }
-                    } else {
-                        hitChunk.chunkData[i] = buildType;
-                        hitChunk.healthData[i] = BlockStaticData.BlockType.NoCrack;
-                    }
-                    ReDrawChunk(hitChunk);
+                    if(leftClick)
+                        hitChunk.TakeHit(i);
+                    else
+                        hitChunk.BuildBlockAt(buildType, i);
+                    hitChunk.ReDrawChunk();
                 }
-            }
-        }
-
-        private void ReDrawChunk(Chunk chunk) {
-            DestroyImmediate(chunk.GetComponent<MeshFilter>());
-            DestroyImmediate(chunk.GetComponent<MeshRenderer>());
-            DestroyImmediate(chunk.GetComponent<Collider>());
-            chunk.CreateChunk(chunkDimensions, chunk.worldPosition, true);
-        }
-
-        private WaitForSeconds healTime = new WaitForSeconds(3);
-        public IEnumerator HealBlock(Chunk chunk, int blockIndex) {
-            yield return healTime;
-            if(chunk.chunkData[blockIndex] != BlockStaticData.BlockType.Air) {
-                chunk.healthData[blockIndex] = BlockStaticData.BlockType.NoCrack;
-                ReDrawChunk(chunk);
             }
         }
 
