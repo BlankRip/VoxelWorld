@@ -1,7 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using VertexData = System.Tuple<UnityEngine.Vector3, UnityEngine.Vector3, UnityEngine.Vector2>;
+using VertexData = System.Tuple<UnityEngine.Vector3, UnityEngine.Vector3, UnityEngine.Vector2, UnityEngine.Vector2>;
 
 namespace BlockyWorld {
     public class MeshUtils
@@ -42,7 +42,8 @@ namespace BlockyWorld {
                     Vector3 vertex = meshes[i].vertices[j];
                     Vector3 normal = meshes[i].normals[j];
                     Vector2 uv = meshes[i].uv[j];
-                    VertexData point = new VertexData(vertex, normal, uv);
+                    Vector2 uv2 = meshes[i].uv2[j];
+                    VertexData point = new VertexData(vertex, normal, uv, uv2);
                     if(!pointsHash.Contains(point)) {
                         pointsOrder.Add(point, pIndex);
                         pointsHash.Add(point);
@@ -55,7 +56,8 @@ namespace BlockyWorld {
                     Vector3 vertex = meshes[i].vertices[triPoint];
                     Vector3 normal = meshes[i].normals[triPoint];
                     Vector2 uv = meshes[i].uv[triPoint];
-                    VertexData point = new VertexData(vertex, normal, uv);
+                    Vector2 uv2 = meshes[i].uv2[triPoint];
+                    VertexData point = new VertexData(vertex, normal, uv, uv2);
                     
                     int index;
                     pointsOrder.TryGetValue(point, out index);
@@ -72,15 +74,18 @@ namespace BlockyWorld {
             List<Vector3> verts = new List<Vector3>();
             List<Vector3> norms = new List<Vector3>();
             List<Vector2> uv = new List<Vector2>();
+            List<Vector2> uv2 = new List<Vector2>();
 
             foreach (VertexData vd in list.Keys) {
                 verts.Add(vd.Item1);
                 norms.Add(vd.Item2);
                 uv.Add(vd.Item3);
+                uv2.Add(vd.Item4);
             }
             mesh.vertices = verts.ToArray();
             mesh.normals = norms.ToArray();
             mesh.uv = uv.ToArray();
+            mesh.uv2 = uv2.ToArray();
         }
     }
 }

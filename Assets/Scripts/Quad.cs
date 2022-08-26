@@ -7,7 +7,9 @@ namespace BlockyWorld.WorldBuilding {
     {
         public Mesh mesh;
 
-        public Quad(BlockStaticData.BlockSide side, Vector3 offset, BlockStaticData.BlockType blockTye) {
+        public Quad(BlockStaticData.BlockSide side, Vector3 offset, 
+            BlockStaticData.BlockType blockType, BlockStaticData.BlockType blockHealthType)
+        {
             mesh = new Mesh();
             mesh.name = "Scripted Quad";
 
@@ -16,10 +18,16 @@ namespace BlockyWorld.WorldBuilding {
             Vector2[] uv =  new Vector2[4];
             int[] triangles = new int[6];
 
-            Vector2 uv00 = BlockStaticData.blockUVs[(int)blockTye, 0];
-            Vector2 uv10 = BlockStaticData.blockUVs[(int)blockTye, 1];
-            Vector2 uv01 = BlockStaticData.blockUVs[(int)blockTye, 2];
-            Vector2 uv11 = BlockStaticData.blockUVs[(int)blockTye, 3];
+            Vector2 uv00 = BlockStaticData.blockUVs[(int)blockType, 0];
+            Vector2 uv10 = BlockStaticData.blockUVs[(int)blockType, 1];
+            Vector2 uv01 = BlockStaticData.blockUVs[(int)blockType, 2];
+            Vector2 uv11 = BlockStaticData.blockUVs[(int)blockType, 3];
+
+            List<Vector2> secondaryUV = new List<Vector2>();
+            secondaryUV.Add(BlockStaticData.blockUVs[(int)blockHealthType, 3]);
+            secondaryUV.Add(BlockStaticData.blockUVs[(int)blockHealthType, 2]);
+            secondaryUV.Add(BlockStaticData.blockUVs[(int)blockHealthType, 0]);
+            secondaryUV.Add(BlockStaticData.blockUVs[(int)blockHealthType, 1]);
 
             Vector3 p0 = offset + new Vector3(-0.5f, -0.5f, 0.5f);
             Vector3 p1 = offset + new Vector3(0.5f, -0.5f, 0.5f);
@@ -67,6 +75,7 @@ namespace BlockyWorld.WorldBuilding {
             mesh.normals = normals;
             mesh.uv = uv;
             mesh.triangles = triangles;
+            mesh.SetUVs(1, secondaryUV);
 
             mesh.RecalculateBounds();
         }

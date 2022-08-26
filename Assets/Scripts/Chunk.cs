@@ -119,7 +119,8 @@ namespace BlockyWorld.WorldBuilding {
             for (int z = 0; z < chunkSize.z; z++) {
                 for (int y = 0; y < chunkSize.y; y++) {
                     for (int x = 0; x < chunkSize.x; x++) {
-                        blocks[x,y,z] = new Block(new Vector3(x, y, z) + worldPosition, chunkData[(x + chunkSize.x * (y + chunkSize.z * z))], this);
+                        blocks[x,y,z] = new Block(new Vector3(x, y, z) + worldPosition, chunkData[(x + chunkSize.x * (y + chunkSize.z * z))],
+                            this, BlockStaticData.BlockType.NoCrack);
                         if(blocks[x, y, z].mesh != null) {
                             inputMeshes.Add(blocks[x, y, z].mesh);
                             int vertexCount = blocks[x, y, z].mesh.vertexCount;
