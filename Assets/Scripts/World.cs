@@ -8,7 +8,7 @@ namespace BlockyWorld.WorldBuilding {
     public class World : MonoBehaviour
     {
         public static Vector3Int worldDimensions = new Vector3Int(5, 5, 5);
-        public static Vector3Int extraWorldDimensions = new Vector3Int(5, 5, 5);
+        public static Vector3Int extraWorldDimensions = new Vector3Int(0, 0, 0);
         public static Vector3Int chunkDimensions = new Vector3Int(10, 10, 10);
 
         public static PerlinSettings surfaceSettings;
@@ -54,16 +54,24 @@ namespace BlockyWorld.WorldBuilding {
             StartCoroutine(BuildWorld());
         }
 
+        private BlockStaticData.BlockType buildType = BlockStaticData.BlockType.Dirt;
+        public void SetBuildType(int type) {
+            buildType = (BlockStaticData.BlockType)type;
+        }
+
         private void Update() {
-            if(Input.GetMouseButtonDown(0) || Input.GetMouseButtonDown(1)) {
+            bool leftClick = Input.GetMouseButtonDown(0);
+            if(leftClick || Input.GetMouseButtonDown(1)) {
                 RaycastHit hitResult;
                 if(mainCamera == null)
                     mainCamera = Camera.main;
                 Ray ray = mainCamera.ScreenPointToRay(Input.mousePosition);
                 if(Physics.Raycast(ray, out hitResult, 10.0f)) {
                     Vector3 hitBlock = Vector3.zero;
-                    if(Input.GetMouseButtonDown(0)) {
+                    if(leftClick) {
                         hitBlock = hitResult.point - (hitResult.normal / 2.0f);
+                    } else {
+                        hitBlock = hitResult.point + (hitResult.normal / 2.0f);
                     }
 
                     Chunk hitChunk = hitResult.collider.gameObject.GetComponent<Chunk>();
@@ -72,7 +80,10 @@ namespace BlockyWorld.WorldBuilding {
                     blockPos.y = (int)(Mathf.Round(hitBlock.y) - hitChunk.worldPosition.y);
                     blockPos.z = (int)(Mathf.Round(hitBlock.z) - hitChunk.worldPosition.z);
                     int i = blockPos.x + chunkDimensions.z * (blockPos.y + chunkDimensions.z * blockPos.z);
-                    hitChunk.chunkData[i] = BlockStaticData.BlockType.Air;
+                    if(leftClick)
+                        hitChunk.chunkData[i] = BlockStaticData.BlockType.Air;
+                    else
+                        hitChunk.chunkData[i] = buildType;
                     DestroyImmediate(hitChunk.GetComponent<MeshFilter>());
                     DestroyImmediate(hitChunk.GetComponent<MeshRenderer>());
                     DestroyImmediate(hitChunk.GetComponent<Collider>());
