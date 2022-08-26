@@ -96,7 +96,7 @@ namespace BlockyWorld.WorldBuilding {
             }
         }
 
-        public void CreateChunk(Vector3Int dimensions, Vector3 postion) {
+        public void CreateChunk(Vector3Int dimensions, Vector3 postion, bool rebuilding = false) {
             worldPosition = postion;
             chunkSize = dimensions;
 
@@ -104,7 +104,8 @@ namespace BlockyWorld.WorldBuilding {
             meshRenderer = gameObject.AddComponent<MeshRenderer>();
             meshRenderer.material = atlas;
             blocks = new Block[chunkSize.x, chunkSize.y, chunkSize.z];
-            BuildChunkData();
+            if(!rebuilding)
+                BuildChunkData();
 
             List<Mesh> inputMeshes = new List<Mesh>();
             int vertexStart = 0;
