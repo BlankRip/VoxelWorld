@@ -18,6 +18,7 @@ namespace BlockyWorld.WorldBuilding {
         //Flaten 3d array [x + width(3d.x) * (y + depth(3d.z) * z)] = [x, y, z] in 3d array
         //Flat to 3d x = i % width (3d.x);  y = i/width(3d.x) % height (3d.y);   z = i / (width (3d.x) * height (3d.y))
         [HideInInspector] public BlockStaticData.BlockType[] chunkData;
+        [HideInInspector] public BlockStaticData.BlockType[] healthData;
         [HideInInspector] public Vector3 worldPosition;
         [HideInInspector] public MeshRenderer meshRenderer;
 
@@ -28,7 +29,9 @@ namespace BlockyWorld.WorldBuilding {
         void BuildChunkData() {
             int blockCount = chunkSize.x * chunkSize.y * chunkSize.z;
             chunkData = new BlockStaticData.BlockType[blockCount];
+            healthData = new BlockStaticData.BlockType[blockCount];
             NativeArray<BlockStaticData.BlockType> blockTypes = new NativeArray<BlockStaticData.BlockType>(chunkData, Allocator.Persistent);
+            NativeArray<BlockStaticData.BlockType> healthTypes = new NativeArray<BlockStaticData.BlockType>(healthData, Allocator.Persistent);
 
             Unity.Mathematics.Random[] tempRandomArray = new Unity.Mathematics.Random[blockCount];
             System.Random seed = new System.Random();
@@ -38,6 +41,7 @@ namespace BlockyWorld.WorldBuilding {
 
             calculateBlockTypes = new CalculateBlockTypes() {
                 cData = blockTypes,
+                hData = healthTypes,
                 chunkSize = new Vector2Int(this.chunkSize.x, this.chunkSize.y),
                 location = worldPosition,
                 randoms = randomArray
@@ -46,14 +50,17 @@ namespace BlockyWorld.WorldBuilding {
             jobHandle = calculateBlockTypes.Schedule(chunkData.Length, 64);
             jobHandle.Complete();
             calculateBlockTypes.cData.CopyTo(chunkData);
+            calculateBlockTypes.hData.CopyTo(healthData);
 
             blockTypes.Dispose();
+            healthTypes.Dispose();
             randomArray.Dispose();
         }
 
         struct CalculateBlockTypes : IJobParallelFor
         {
             public NativeArray<BlockStaticData.BlockType> cData;
+            public NativeArray<BlockStaticData.BlockType> hData;
             public Vector2Int chunkSize;
             public Vector3 location;
             public NativeArray<Unity.Mathematics.Random> randoms;
@@ -62,6 +69,8 @@ namespace BlockyWorld.WorldBuilding {
                 int x = (i % chunkSize.x) + (int)location.x;
                 int y = ((i / chunkSize.x) % chunkSize.y) + (int)location.y;
                 int z = (i / (chunkSize.x * chunkSize.y)) + (int)location.z;
+
+                hData[i] = BlockStaticData.BlockType.NoCrack;
                 if(y <= 1) {
                     cData[i] = BlockStaticData.BlockType.BedRock;
                     return;
@@ -120,7 +129,7 @@ namespace BlockyWorld.WorldBuilding {
                 for (int y = 0; y < chunkSize.y; y++) {
                     for (int x = 0; x < chunkSize.x; x++) {
                         blocks[x,y,z] = new Block(new Vector3(x, y, z) + worldPosition, chunkData[(x + chunkSize.x * (y + chunkSize.z * z))],
-                            this, BlockStaticData.BlockType.NoCrack);
+                            this, healthData[(x + chunkSize.x * (y + chunkSize.z * z))]);
                         if(blocks[x, y, z].mesh != null) {
                             inputMeshes.Add(blocks[x, y, z].mesh);
                             int vertexCount = blocks[x, y, z].mesh.vertexCount;
@@ -142,7 +151,8 @@ namespace BlockyWorld.WorldBuilding {
             jobs.outputMesh.SetVertexBufferParams(vertexStart,
                                                 new VertexAttributeDescriptor(VertexAttribute.Position), 
                                                 new VertexAttributeDescriptor(VertexAttribute.Normal, stream: 1),
-                                                new VertexAttributeDescriptor(VertexAttribute.TexCoord0, stream: 2));
+                                                new VertexAttributeDescriptor(VertexAttribute.TexCoord0, stream: 2),
+                                                new VertexAttributeDescriptor(VertexAttribute.TexCoord1, stream: 3));
             JobHandle handle = jobs.Schedule(inputMeshes.Count, 4);
             Mesh newMesh = new Mesh();
             newMesh.name = $"Chunk_{worldPosition.x}_{worldPosition.y}_{worldPosition.z}";
@@ -188,18 +198,24 @@ namespace BlockyWorld.WorldBuilding {
                 NativeArray<float3> uv = new NativeArray<float3>(vCount, Allocator.Temp, NativeArrayOptions.UninitializedMemory);
                 data.GetUVs(0, uv.Reinterpret<Vector3>());
 
+                NativeArray<float3> uv2 = new NativeArray<float3>(vCount, Allocator.Temp, NativeArrayOptions.UninitializedMemory);
+                data.GetUVs(1, uv2.Reinterpret<Vector3>());
+
                 NativeArray<Vector3> outputVerts = outputMesh.GetVertexData<Vector3>();
                 NativeArray<Vector3> outputNormals = outputMesh.GetVertexData<Vector3>(stream: 1);
                 NativeArray<Vector3> outputUV = outputMesh.GetVertexData<Vector3>(stream: 2);
+                NativeArray<Vector3> outputUV2 = outputMesh.GetVertexData<Vector3>(stream: 3);
 
                 for (int i = 0; i < vCount; i++) {
                     outputVerts[i + vStart] = verts[i];
                     outputNormals[i + vStart] = normals[i];
                     outputUV[i + vStart] = uv[i];
+                    outputUV2[i + vStart] = uv2[i];
                 }
                 verts.Dispose();
                 normals.Dispose();
                 uv.Dispose();
+                uv2.Dispose();
 
                 int tStart = triStart[index];
                 int tCount = data.GetSubMesh(0).indexCount;

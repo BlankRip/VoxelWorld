@@ -81,10 +81,17 @@ namespace BlockyWorld.WorldBuilding {
                     blockPos.z = (int)(Mathf.Round(hitBlock.z) - hitChunk.worldPosition.z);
                     UpdateIntoNeighbour(ref hitChunk, ref blockPos);
                     int i = blockPos.x + chunkDimensions.z * (blockPos.y + chunkDimensions.z * blockPos.z);
-                    if(leftClick)
-                        hitChunk.chunkData[i] = BlockStaticData.BlockType.Air;
-                    else
+                    if(leftClick) {
+                        int blockHealth = BlockStaticData.blockTypeHealth[(int)hitChunk.chunkData[i]];
+                        if(blockHealth != -1) {
+                            hitChunk.healthData[i]++;
+                            if(hitChunk.healthData[i] == BlockStaticData.BlockType.NoCrack + blockHealth)
+                                hitChunk.chunkData[i] = BlockStaticData.BlockType.Air;
+                        }
+                    } else {
                         hitChunk.chunkData[i] = buildType;
+                        hitChunk.healthData[i] = BlockStaticData.BlockType.NoCrack;
+                    }
                     DestroyImmediate(hitChunk.GetComponent<MeshFilter>());
                     DestroyImmediate(hitChunk.GetComponent<MeshRenderer>());
                     DestroyImmediate(hitChunk.GetComponent<Collider>());

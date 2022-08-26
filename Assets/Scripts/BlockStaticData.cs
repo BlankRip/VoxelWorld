@@ -12,6 +12,13 @@ namespace BlockyWorld {
             NoCrack, Crack1, Crack2, Crack3, Crack4, Air
         };
 
+        public static int[] blockTypeHealth = {
+            /*GrassTop*/ 2, /*GrassSide*/ 2, /*Dirt*/ 1, /*Water*/ 1, 
+            /*Stone*/ 4, /*Sand*/ 3, /*Gold*/ 4, /*BedRock*/ -1,
+            /*RedStone*/ 3, /*Diamond*/ 4, /*NoCrack*/ -1, /*Crack1*/ -1,
+            /*Crack2*/ -1, /*Crack3*/ -1, /*Crack4*/ -1, /*Air*/ -1
+        };
+
         public static Vector2[,] blockUVs = {
             /*GrassTop*/
             {
@@ -65,8 +72,8 @@ namespace BlockyWorld {
             },
             /*NoCrack*/
             {
-                new Vector2( 0.6875f, 0f ), new Vector2( 0.75f, 0f),
-                new Vector2( 0.6875f, 0.0625f ), new Vector2( 0.75f, 0.0625f )
+                new Vector2(0f,0.9375f), new Vector2(0.0625f,0.9375f),
+                new Vector2(0f,1.0f), new Vector2(0.0625f,1.0f)
             },
             /*Crack1*/
             {
