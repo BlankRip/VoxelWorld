@@ -84,6 +84,8 @@ namespace BlockyWorld.WorldBuilding {
                     if(leftClick) {
                         int blockHealth = BlockStaticData.blockTypeHealth[(int)hitChunk.chunkData[i]];
                         if(blockHealth != -1) {
+                            if(hitChunk.healthData[i] == BlockStaticData.BlockType.NoCrack)
+                                StartCoroutine(HealBlock(hitChunk, i));
                             hitChunk.healthData[i]++;
                             if(hitChunk.healthData[i] == BlockStaticData.BlockType.NoCrack + blockHealth)
                                 hitChunk.chunkData[i] = BlockStaticData.BlockType.Air;
@@ -92,11 +94,24 @@ namespace BlockyWorld.WorldBuilding {
                         hitChunk.chunkData[i] = buildType;
                         hitChunk.healthData[i] = BlockStaticData.BlockType.NoCrack;
                     }
-                    DestroyImmediate(hitChunk.GetComponent<MeshFilter>());
-                    DestroyImmediate(hitChunk.GetComponent<MeshRenderer>());
-                    DestroyImmediate(hitChunk.GetComponent<Collider>());
-                    hitChunk.CreateChunk(chunkDimensions, hitChunk.worldPosition, true);
+                    ReDrawChunk(hitChunk);
                 }
+            }
+        }
+
+        private void ReDrawChunk(Chunk chunk) {
+            DestroyImmediate(chunk.GetComponent<MeshFilter>());
+            DestroyImmediate(chunk.GetComponent<MeshRenderer>());
+            DestroyImmediate(chunk.GetComponent<Collider>());
+            chunk.CreateChunk(chunkDimensions, chunk.worldPosition, true);
+        }
+
+        private WaitForSeconds healTime = new WaitForSeconds(3);
+        public IEnumerator HealBlock(Chunk chunk, int blockIndex) {
+            yield return healTime;
+            if(chunk.chunkData[blockIndex] != BlockStaticData.BlockType.Air) {
+                chunk.healthData[blockIndex] = BlockStaticData.BlockType.NoCrack;
+                ReDrawChunk(chunk);
             }
         }
 
