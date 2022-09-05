@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using BlockyWorld.Perlin;
+using BlockyWorld.SaveLoadSystem;
 
 namespace BlockyWorld.WorldBuilding {
     public class World : MonoBehaviour
@@ -17,9 +18,11 @@ namespace BlockyWorld.WorldBuilding {
         public static PerlinSettings diamondBottomSettings;
         public static PerlinSettings caveSettings;
 
+        [SerializeField] bool loadFromFile = false;
+
         [SerializeField] GameObject chunkPrefab;
         [SerializeField] GameObject loadingCamera;
-        [SerializeField] GameObject firstPersonController;
+        public GameObject firstPersonController;
         [SerializeField] Slider loadingBar; 
 
         [Header("Graphers")]
@@ -29,9 +32,9 @@ namespace BlockyWorld.WorldBuilding {
         [SerializeField] PerlinGrapher diamondBottomGrapher;
         [SerializeField] Perlin3DGrapher caveGrapher;
 
-        private HashSet<Vector3Int> chunkChecker = new HashSet<Vector3Int>();
-        private HashSet<Vector2Int> chunkColumns = new HashSet<Vector2Int>();
-        private Dictionary<Vector3Int, Chunk> chunks = new Dictionary<Vector3Int, Chunk>();
+        public HashSet<Vector3Int> chunkChecker = new HashSet<Vector3Int>();
+        public HashSet<Vector2Int> chunkColumns = new HashSet<Vector2Int>();
+        public Dictionary<Vector3Int, Chunk> chunks = new Dictionary<Vector3Int, Chunk>();
         private Vector3Int lastBuildPosition;
         private float playerDistCheckerValue;
         private int drawRadius = 3;
@@ -51,7 +54,53 @@ namespace BlockyWorld.WorldBuilding {
             diamondTopSettings = new PerlinSettings(diamondTopGrapher.settings);
             diamondBottomSettings = new PerlinSettings(diamondBottomGrapher.settings);
             caveSettings = new PerlinSettings(caveGrapher.settings);
-            StartCoroutine(BuildWorld());
+            if(loadFromFile)
+                StartCoroutine(LoadWorldFromFile());
+            else
+                StartCoroutine(BuildWorld());
+        } 
+
+        IEnumerator LoadWorldFromFile() {
+            WorldData wd = FileSaver.Load();
+            if(wd == null) {
+                StartCoroutine(BuildWorld());
+                yield break;
+            }
+
+            chunkChecker.Clear();
+            for (int i = 0; i < wd.chunkCheckerValues.Length; i += 3)
+                chunkChecker.Add(new Vector3Int(wd.chunkCheckerValues[i], wd.chunkCheckerValues[i+1], wd.chunkCheckerValues[i+2]));
+            
+            chunkColumns.Clear();
+            for (int i = 0; i < wd.chunkColumnValues.Length; i += 2)
+                chunkColumns.Add(new Vector2Int(wd.chunkColumnValues[i], wd.chunkColumnValues[i+1]));
+
+            int index = 0;
+            int blockCount = chunkDimensions.x * chunkDimensions.y * chunkDimensions.z;
+            foreach (Vector3Int chunkPos in chunkChecker) {
+                Chunk chunk = Instantiate(chunkPrefab).GetComponent<Chunk>();
+                chunk.gameObject.name = $"Chunk_{chunkPos.x}_{chunkPos.y}_{chunkPos.z}";
+                chunk.chunkData = new BlockStaticData.BlockType[blockCount];
+                chunk.LoadHealthData(blockCount);
+
+                for (int i = 0; i < blockCount; i++) {
+                    chunk.chunkData[i] = (BlockStaticData.BlockType)wd.allChunkData[index];
+                    index++;
+                }
+                chunk.CreateChunk(chunkDimensions, chunkPos, true);
+                chunk.ReDrawChunk();
+                chunks.Add(chunkPos, chunk);
+                yield return null;
+            }
+
+            firstPersonController.transform.position = new Vector3(wd.playerPosX, wd.playerPosY, wd.playerPosZ);
+            loadingCamera.SetActive(false);
+            firstPersonController.SetActive(true);
+            lastBuildPosition = Vector3Int.CeilToInt(firstPersonController.transform.position);
+        }
+
+        public void SaveWorld() {
+            FileSaver.Save(this);
         }
 
         private BlockStaticData.BlockType buildType = BlockStaticData.BlockType.Dirt;

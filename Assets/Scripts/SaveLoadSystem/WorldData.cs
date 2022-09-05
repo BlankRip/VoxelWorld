@@ -1,20 +1,13 @@
-using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Runtime.Serialization.Formatters.Binary;
-using System.IO;
 using UnityEngine;
 using BlockyWorld.WorldBuilding;
 
-namespace BlockyWorld
+namespace BlockyWorld.SaveLoadSystem
 {
     [System.Serializable]
-    public struct WorldData
+    public class WorldData
     {
-        
-        // private HashSet<Vector3Int> chunkChecker = new HashSet<Vector3Int>();
-        // private HashSet<Vector2Int> chunkColumns = new HashSet<Vector2Int>();
-        // private Dictionary<Vector3Int, Chunk> chunks = new Dictionary<Vector3Int, Chunk>();
         public int[] chunkCheckerValues;
         public int[] chunkColumnValues;
         public int[] allChunkData;
@@ -22,6 +15,8 @@ namespace BlockyWorld
         public int playerPosX;
         public int playerPosY;
         public int playerPosZ;
+
+        public WorldData() { }
 
         public WorldData(HashSet<Vector3Int> chunkChecker, HashSet<Vector2Int> chunkColumns,
             Dictionary<Vector3Int, Chunk> chunks, Vector3 playerPos)
@@ -37,7 +32,7 @@ namespace BlockyWorld
 
             chunkColumnValues = new int[chunkColumns.Count * 2];
             index = 0;
-            foreach (Vector2Int v in chunkChecker) {
+            foreach (Vector2Int v in chunkColumns) {
                 chunkColumnValues[index] = v.x;
                 chunkColumnValues[index + 1] = v.y;
                 index += 2;
@@ -56,9 +51,5 @@ namespace BlockyWorld
             playerPosY = (int)playerPos.y;
             playerPosZ = (int)playerPos.z;
         }
-    }
-
-    public static class FileSaver
-    {
     }
 }

@@ -37,6 +37,12 @@ namespace BlockyWorld.WorldBuilding {
             }
         }
 
+        public void LoadHealthData(int blockCount) {
+            healthData = new BlockStaticData.BlockType[blockCount];
+            for (int i = 0; i < blockCount; i++)
+                healthData[i] = BlockStaticData.BlockType.NoCrack;
+        }
+
         public void ReDrawChunk() {
             DestroyImmediate(GetComponent<MeshFilter>());
             DestroyImmediate(GetComponent<MeshRenderer>());
