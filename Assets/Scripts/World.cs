@@ -141,12 +141,61 @@ namespace BlockyWorld.WorldBuilding {
                     (Vector3Int, Vector3Int) blockNeighbour = GetWorldNeighbour(blockPos, Vector3Int.CeilToInt(hitChunk.worldPosition));
                     hitChunk = chunks[blockNeighbour.Item2];
                     int i = ToFlat(blockNeighbour.Item1);
-                    if(leftClick)
-                        hitChunk.TakeHit(i);
-                    else
+                    if(leftClick) {
+                        bool blockDestroyed = hitChunk.TakeHit(i);
+                        if(blockDestroyed) {
+                            Vector3Int nBlock = FromFlat(i);
+                            (Vector3Int, Vector3Int) neighbourBlock = GetWorldNeighbour(new Vector3Int(nBlock.x, nBlock.y + 1, nBlock.z),
+                                                                                            Vector3Int.CeilToInt(hitChunk.worldPosition));
+                            Vector3Int block = neighbourBlock.Item1;
+                            int neighbourBlockIndex = ToFlat(block);
+                            Chunk neighbourChunk = chunks[neighbourBlock.Item2];
+                            StartCoroutine(Drop(neighbourChunk, neighbourBlockIndex));
+                        }
+
+                    }
+                    else {
                         hitChunk.BuildBlockAt(buildType, i);
+                        StartCoroutine(Drop(hitChunk, i));
+                    }
                     hitChunk.ReDrawChunk();
                 }
+            }
+        }
+
+        WaitForSeconds dropDelay = new WaitForSeconds(0.1f);
+        public IEnumerator Drop(Chunk chunk, int blockIndex) {
+            if (chunk.chunkData[blockIndex] != BlockStaticData.BlockType.Sand)
+                yield break;
+            yield return dropDelay;
+            while(true) {
+                Vector3Int thisBlock = FromFlat(blockIndex);
+                (Vector3Int, Vector3Int) neighbourBlock = GetWorldNeighbour(new Vector3Int(thisBlock.x, thisBlock.y - 1, thisBlock.z),
+                                                                                Vector3Int.CeilToInt(chunk.worldPosition));
+                Vector3Int block = neighbourBlock.Item1;
+                int neighbourBlockIndex = ToFlat(block);
+                Chunk neighbourChunk = chunks[neighbourBlock.Item2];
+                if(neighbourChunk.chunkData[neighbourBlockIndex] == BlockStaticData.BlockType.Air) {
+                    neighbourChunk.chunkData[neighbourBlockIndex] = BlockStaticData.BlockType.Sand;
+                    neighbourChunk.ResetBlockHealth(neighbourBlockIndex);
+                    chunk.chunkData[blockIndex] = BlockStaticData.BlockType.Air;
+
+                    (Vector3Int, Vector3Int) nBlockAbove = GetWorldNeighbour(new Vector3Int(thisBlock.x, thisBlock.y + 1, thisBlock.z),
+                                                                                Vector3Int.CeilToInt(chunk.worldPosition));
+                    Vector3Int blockAbove = nBlockAbove.Item1;
+                    int nBlockAboveIndex = ToFlat(blockAbove);
+                    Chunk nChunkAbove = chunks[nBlockAbove.Item2];
+                    StartCoroutine(Drop(nChunkAbove, nBlockAboveIndex));
+
+                    yield return dropDelay;
+                    chunk.ReDrawChunk();
+                    if(neighbourChunk != chunk)
+                        neighbourChunk.ReDrawChunk();
+                    
+                    chunk = neighbourChunk;
+                    blockIndex = neighbourBlockIndex;
+                } else
+                    yield break;
             }
         }
 

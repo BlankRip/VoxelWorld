@@ -26,15 +26,22 @@ namespace BlockyWorld.WorldBuilding {
         JobHandle jobHandle;
         public NativeArray<Unity.Mathematics.Random> randomArray {get; private set;}
 
-        public void TakeHit(int blockIndex) {
+        public bool TakeHit(int blockIndex) {
             int blockHealth = BlockStaticData.blockTypeHealth[(int)chunkData[blockIndex]];
             if(blockHealth != -1) {
                 if(healthData[blockIndex] == BlockStaticData.BlockType.NoCrack)
                     StartCoroutine(HealBlock(blockIndex));
                 healthData[blockIndex]++;
-                if(healthData[blockIndex] == BlockStaticData.BlockType.NoCrack + blockHealth)
+                if(healthData[blockIndex] == BlockStaticData.BlockType.NoCrack + blockHealth) {
                     chunkData[blockIndex] = BlockStaticData.BlockType.Air;
+                    return true;
+                }
             }
+            return false;
+        }
+
+        public void ResetBlockHealth(int blockIndex) {
+            healthData[blockIndex] = BlockStaticData.BlockType.NoCrack;
         }
 
         public void LoadHealthData(int blockCount) {
