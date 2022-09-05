@@ -138,8 +138,9 @@ namespace BlockyWorld.WorldBuilding {
                     blockPos.x = (int)(Mathf.Round(hitBlock.x) - hitChunk.worldPosition.x);
                     blockPos.y = (int)(Mathf.Round(hitBlock.y) - hitChunk.worldPosition.y);
                     blockPos.z = (int)(Mathf.Round(hitBlock.z) - hitChunk.worldPosition.z);
-                    UpdateIntoNeighbour(ref hitChunk, ref blockPos);
-                    int i = blockPos.x + chunkDimensions.z * (blockPos.y + chunkDimensions.z * blockPos.z);
+                    (Vector3Int, Vector3Int) blockNeighbour = GetWorldNeighbour(blockPos, Vector3Int.CeilToInt(hitChunk.worldPosition));
+                    hitChunk = chunks[blockNeighbour.Item2];
+                    int i = ToFlat(blockNeighbour.Item1);
                     if(leftClick)
                         hitChunk.TakeHit(i);
                     else
@@ -149,47 +150,54 @@ namespace BlockyWorld.WorldBuilding {
             }
         }
 
-        private void UpdateIntoNeighbour(ref Chunk hitChunk, ref Vector3Int expectedPos) {
-            Vector3Int neighbour = Vector3Int.zero;
-            if(expectedPos.x == chunkDimensions.x) {
-                neighbour = new Vector3Int((int)(hitChunk.worldPosition.x + chunkDimensions.x),
-                            (int)hitChunk.worldPosition.y,
-                            (int)hitChunk.worldPosition.z);
-                hitChunk = chunks[neighbour];
-                expectedPos.x = 0;
-            } else if(expectedPos.x == -1) {
-                neighbour = new Vector3Int((int)(hitChunk.worldPosition.x - chunkDimensions.x),
-                            (int)hitChunk.worldPosition.y,
-                            (int)hitChunk.worldPosition.z);
-                hitChunk = chunks[neighbour];
-                expectedPos.x = chunkDimensions.x - 1;
+        private Vector3Int FromFlat(int i) {
+            return new Vector3Int(i % chunkDimensions.x,
+                (i / chunkDimensions.x) % chunkDimensions.y,
+                i / (chunkDimensions.x * chunkDimensions.y));
+        }
+
+        private int ToFlat(Vector3Int v) {
+            return v.x + chunkDimensions.x * (v.y + chunkDimensions.z * v.z);
+        }
+
+        public (Vector3Int, Vector3Int) GetWorldNeighbour(Vector3Int blockIndex, Vector3Int chunkIndex) {
+            Chunk chunk = chunks[chunkIndex];
+            Vector3Int neighbour = chunkIndex;
+            if(blockIndex.x == chunkDimensions.x) {
+                neighbour = new Vector3Int((int)(chunk.worldPosition.x + chunkDimensions.x),
+                            (int)chunk.worldPosition.y,
+                            (int)chunk.worldPosition.z);
+                blockIndex.x = 0;
+            } else if(blockIndex.x == -1) {
+                neighbour = new Vector3Int((int)(chunk.worldPosition.x - chunkDimensions.x),
+                            (int)chunk.worldPosition.y,
+                            (int)chunk.worldPosition.z);
+                blockIndex.x = chunkDimensions.x - 1;
             } 
-            else if(expectedPos.y == chunkDimensions.y) {
-                neighbour = new Vector3Int((int)hitChunk.worldPosition.x,
-                            (int)(hitChunk.worldPosition.y + chunkDimensions.y),
-                            (int)hitChunk.worldPosition.z);
-                hitChunk = chunks[neighbour];
-                expectedPos.y = 0;
-            } else if(expectedPos.y == -1) {
-                neighbour = new Vector3Int((int)hitChunk.worldPosition.x,
-                            (int)(hitChunk.worldPosition.y - chunkDimensions.y),
-                            (int)hitChunk.worldPosition.z);
-                hitChunk = chunks[neighbour];
-                expectedPos.y = chunkDimensions.y - 1;
+            else if(blockIndex.y == chunkDimensions.y) {
+                neighbour = new Vector3Int((int)chunk.worldPosition.x,
+                            (int)(chunk.worldPosition.y + chunkDimensions.y),
+                            (int)chunk.worldPosition.z);
+                blockIndex.y = 0;
+            } else if(blockIndex.y == -1) {
+                neighbour = new Vector3Int((int)chunk.worldPosition.x,
+                            (int)(chunk.worldPosition.y - chunkDimensions.y),
+                            (int)chunk.worldPosition.z);
+                blockIndex.y = chunkDimensions.y - 1;
             } 
-            else if(expectedPos.z == chunkDimensions.z) {
-                neighbour = new Vector3Int((int)hitChunk.worldPosition.x,
-                            (int)hitChunk.worldPosition.y,
-                            (int)(hitChunk.worldPosition.z + chunkDimensions.z));
-                hitChunk = chunks[neighbour];
-                expectedPos.z = 0;
-            } else if(expectedPos.z == -1) {
-                neighbour = new Vector3Int((int)hitChunk.worldPosition.x,
-                            (int)hitChunk.worldPosition.y,
-                            (int)(hitChunk.worldPosition.z - chunkDimensions.z));
-                hitChunk = chunks[neighbour];
-                expectedPos.z = chunkDimensions.z - 1;
+            else if(blockIndex.z == chunkDimensions.z) {
+                neighbour = new Vector3Int((int)chunk.worldPosition.x,
+                            (int)chunk.worldPosition.y,
+                            (int)(chunk.worldPosition.z + chunkDimensions.z));
+                blockIndex.z = 0;
+            } else if(blockIndex.z == -1) {
+                neighbour = new Vector3Int((int)chunk.worldPosition.x,
+                            (int)chunk.worldPosition.y,
+                            (int)(chunk.worldPosition.z - chunkDimensions.z));
+                blockIndex.z = chunkDimensions.z - 1;
             }
+
+            return (blockIndex, neighbour);
         }
 
         private IEnumerator BuildWorld() {
