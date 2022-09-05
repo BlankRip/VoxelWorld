@@ -9,7 +9,7 @@ namespace BlockyWorld.WorldBuilding {
     public class World : MonoBehaviour
     {
         public static Vector3Int worldDimensions = new Vector3Int(5, 5, 5);
-        public static Vector3Int extraWorldDimensions = new Vector3Int(0, 0, 0);
+        public static Vector3Int extraWorldDimensions = new Vector3Int(2, 5, 2);
         public static Vector3Int chunkDimensions = new Vector3Int(10, 10, 10);
 
         public static PerlinSettings surfaceSettings;
@@ -76,6 +76,8 @@ namespace BlockyWorld.WorldBuilding {
                 chunkColumns.Add(new Vector2Int(wd.chunkColumnValues[i], wd.chunkColumnValues[i+1]));
 
             int index = 0;
+            int vIndex = 0;
+            loadingBar.maxValue = chunkChecker.Count;
             int blockCount = chunkDimensions.x * chunkDimensions.y * chunkDimensions.z;
             foreach (Vector3Int chunkPos in chunkChecker) {
                 Chunk chunk = Instantiate(chunkPrefab).GetComponent<Chunk>();
@@ -89,14 +91,22 @@ namespace BlockyWorld.WorldBuilding {
                 }
                 chunk.CreateChunk(chunkDimensions, chunkPos, true);
                 chunk.ReDrawChunk();
+                chunk.meshRenderer.enabled = wd.chunkVisibility[vIndex];
+                vIndex++;
                 chunks.Add(chunkPos, chunk);
+
+                loadingBar.value++;
                 yield return null;
             }
 
             firstPersonController.transform.position = new Vector3(wd.playerPosX, wd.playerPosY, wd.playerPosZ);
             loadingCamera.SetActive(false);
+            loadingBar.gameObject.SetActive(false);
             firstPersonController.SetActive(true);
             lastBuildPosition = Vector3Int.CeilToInt(firstPersonController.transform.position);
+
+            StartCoroutine(BuildCoordinator());
+            //StartCoroutine(UpdateWorld());
         }
 
         public void SaveWorld() {
@@ -270,9 +280,9 @@ namespace BlockyWorld.WorldBuilding {
 
         private IEnumerator BuildExtraWorld() {
             int zEnd = worldDimensions.z + extraWorldDimensions.z;
-            int zStart = worldDimensions.z - 1;
+            int zStart = worldDimensions.z;
             int xEnd = worldDimensions.x + extraWorldDimensions.x;
-            int xStart = worldDimensions.x - 1;
+            int xStart = worldDimensions.x;
 
             for (int z = zStart; z < zEnd; z++) {
                 for (int x = 0; x < xEnd; x++) {

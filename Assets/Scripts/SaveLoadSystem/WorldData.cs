@@ -11,6 +11,7 @@ namespace BlockyWorld.SaveLoadSystem
         public int[] chunkCheckerValues;
         public int[] chunkColumnValues;
         public int[] allChunkData;
+        public bool[] chunkVisibility;
 
         public int playerPosX;
         public int playerPosY;
@@ -39,12 +40,16 @@ namespace BlockyWorld.SaveLoadSystem
             }
 
             allChunkData = new int[chunks.Count * World.chunkDimensions.x * World.chunkDimensions.y * World.chunkDimensions.z];
+            chunkVisibility = new bool[chunks.Count];
+            int vIndex = 0;
             index = 0;
             foreach (KeyValuePair<Vector3Int, Chunk> ch in chunks) {
                 foreach (BlockStaticData.BlockType bType in ch.Value.chunkData) {
                     allChunkData[index] = (int)bType;
                     index++;
                 }
+                chunkVisibility[vIndex] = ch.Value.meshRenderer.enabled;
+                vIndex++;
             }
 
             playerPosX = (int)playerPos.x;
