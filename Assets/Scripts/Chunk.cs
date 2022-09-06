@@ -200,6 +200,7 @@ namespace BlockyWorld.WorldBuilding {
                 meshFilterFluid = fluidMesh.AddComponent<MeshFilter>();
                 meshRendererFluid = fluidMesh.AddComponent<MeshRenderer>();
                 meshRendererFluid.material = fluid;
+                fluidMesh.AddComponent<UVScroller>();
             } else {
                 meshFilterFluid = fluidMesh.GetComponent<MeshFilter>();
                 DestroyImmediate(fluidMesh.GetComponent<Collider>());
