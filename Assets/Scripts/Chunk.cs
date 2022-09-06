@@ -278,6 +278,7 @@ namespace BlockyWorld.WorldBuilding {
                     meshFilterFluid.mesh = newMesh;
                     MeshCollider collider = fluidMesh.AddComponent<MeshCollider>();
                     collider.sharedMesh = meshFilterFluid.mesh;
+                    fluidMesh.layer = 4;
                 }
             }
         }
