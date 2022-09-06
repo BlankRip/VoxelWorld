@@ -48,7 +48,7 @@ namespace BlockyWorld.SaveLoadSystem
                     allChunkData[index] = (int)bType;
                     index++;
                 }
-                chunkVisibility[vIndex] = ch.Value.meshRenderer.enabled;
+                chunkVisibility[vIndex] = ch.Value.meshRendererSolid.enabled;
                 vIndex++;
             }
 

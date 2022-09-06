@@ -94,7 +94,8 @@ namespace BlockyWorld.WorldBuilding {
                 }
                 chunk.CreateChunk(chunkDimensions, chunkPos, true);
                 chunk.ReDrawChunk();
-                chunk.meshRenderer.enabled = wd.chunkVisibility[vIndex];
+                chunk.meshRendererSolid.enabled = wd.chunkVisibility[vIndex];
+                chunk.meshRendererFluid.enabled = wd.chunkVisibility[vIndex];
                 vIndex++;
                 chunks.Add(chunkPos, chunk);
 
@@ -136,7 +137,7 @@ namespace BlockyWorld.WorldBuilding {
                         hitBlock = hitResult.point + (hitResult.normal / 2.0f);
                     }
 
-                    Chunk hitChunk = hitResult.collider.gameObject.GetComponent<Chunk>();
+                    Chunk hitChunk = hitResult.collider.gameObject.transform.parent.GetComponent<Chunk>();
                     Vector3Int blockPos = Vector3Int.zero;
                     blockPos.x = (int)(Mathf.Round(hitBlock.x) - hitChunk.worldPosition.x);
                     blockPos.y = (int)(Mathf.Round(hitBlock.y) - hitChunk.worldPosition.y);
@@ -348,7 +349,8 @@ namespace BlockyWorld.WorldBuilding {
                     chunkChecker.Add(position);
                     chunks.Add(position, chunk);
                 }
-                chunks[position].meshRenderer.enabled = meshEnabled;
+                chunks[position].meshRendererSolid.enabled = meshEnabled;
+                chunks[position].meshRendererFluid.enabled = meshEnabled;
             }
             if(!chunkColumns.Contains(new Vector2Int(x, z)))
                 chunkColumns.Add(new Vector2Int(x, z));
@@ -387,8 +389,10 @@ namespace BlockyWorld.WorldBuilding {
         private void HideChunkColumn(int x, int z) {
             for (int y = 0; y < worldDimensions.y; y++) {
                 Vector3Int postion = new Vector3Int(x, y * chunkDimensions.y, z);
-                if(chunkChecker.Contains(postion))
-                    chunks[postion].meshRenderer.enabled = false;
+                if(chunkChecker.Contains(postion)) {
+                    chunks[postion].meshRendererSolid.enabled = false;
+                    chunks[postion].meshRendererFluid.enabled = false;
+                }
             }
         }
     }

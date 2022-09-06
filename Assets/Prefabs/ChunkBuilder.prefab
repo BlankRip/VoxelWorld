@@ -45,11 +45,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   chunkSize: {x: 10, y: 10, z: 10}
   atlas: {fileID: 2100000, guid: eae6522f56be32c4b9b7cebf86383411, type: 2}
-  blockType: 2
-  offset: {x: 0, y: -18, z: 0}
-  octives: 8
-  scale: 0.001
-  hightScale: 10
-  buildChunkInStart: 0
+  fluid: {fileID: 2100000, guid: e788090310c32b34fba390556d5861b4, type: 2}
   chunkData: 
   worldPosition: {x: 0, y: 0, z: 0}
+  meshRenderer: {fileID: 0}
