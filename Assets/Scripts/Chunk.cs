@@ -104,39 +104,10 @@ namespace BlockyWorld.WorldBuilding {
             BuildTrees();
         }
 
-        (Vector3Int, BlockStaticData.BlockType)[] treeDesign = new (Vector3Int, BlockStaticData.BlockType)[] {
-                (new Vector3Int(0,1,-1), BlockStaticData.BlockType.Leaves),
-                (new Vector3Int(1,1,-1), BlockStaticData.BlockType.Leaves),
-                (new Vector3Int(-1,2,-1), BlockStaticData.BlockType.Leaves),
-                (new Vector3Int(0,2,-1), BlockStaticData.BlockType.Leaves),
-                (new Vector3Int(0,3,-1), BlockStaticData.BlockType.Leaves),
-                (new Vector3Int(-1,4,-1), BlockStaticData.BlockType.Leaves),
-                (new Vector3Int(0,4,-1), BlockStaticData.BlockType.Leaves),
-                (new Vector3Int(-1,5,-1), BlockStaticData.BlockType.Leaves),
-                (new Vector3Int(1,5,-1), BlockStaticData.BlockType.Leaves),
-                (new Vector3Int(0,0,0), BlockStaticData.BlockType.Wood),
-                (new Vector3Int(0,1,0), BlockStaticData.BlockType.Wood),
-                (new Vector3Int(0,2,0), BlockStaticData.BlockType.Wood),
-                (new Vector3Int(1,2,0), BlockStaticData.BlockType.Leaves),
-                (new Vector3Int(0,3,0), BlockStaticData.BlockType.Leaves),
-                (new Vector3Int(1,3,0), BlockStaticData.BlockType.Leaves),
-                (new Vector3Int(0,4,0), BlockStaticData.BlockType.Leaves),
-                (new Vector3Int(0,5,0), BlockStaticData.BlockType.Leaves),
-                (new Vector3Int(1,5,0), BlockStaticData.BlockType.Leaves),
-                (new Vector3Int(0,1,1), BlockStaticData.BlockType.Leaves),
-                (new Vector3Int(-1,2,1), BlockStaticData.BlockType.Leaves),
-                (new Vector3Int(0,2,1), BlockStaticData.BlockType.Leaves),
-                (new Vector3Int(-1,3,1), BlockStaticData.BlockType.Leaves),
-                (new Vector3Int(0,3,1), BlockStaticData.BlockType.Leaves),
-                (new Vector3Int(0,4,1), BlockStaticData.BlockType.Leaves),
-                (new Vector3Int(-1,5,1), BlockStaticData.BlockType.Leaves),
-                (new Vector3Int(0,5,1), BlockStaticData.BlockType.Leaves),
-                (new Vector3Int(1,5,1), BlockStaticData.BlockType.Leaves)
-        };
         private void BuildTrees() {
             for (int i = 0; i < chunkData.Length; i++) {
                 if(chunkData[i] == BlockStaticData.BlockType.WoodBase) {
-                    foreach ((Vector3Int, BlockStaticData.BlockType) data in treeDesign) {
+                    foreach ((Vector3Int, BlockStaticData.BlockType) data in BlockStaticData.treeDesign) {
                         Vector3Int blockpos = StaticFuncs.FromFlat(i) + data.Item1;
                         int bIndex = StaticFuncs.ToFlat(blockpos);
                         if(bIndex >= 0 && bIndex < chunkData.Length) {
@@ -195,6 +166,8 @@ namespace BlockyWorld.WorldBuilding {
                     cData[i] = BlockStaticData.BlockType.Stone;
                 } else if(surfaceHeight > y) {
                     cData[i] = BlockStaticData.BlockType.Dirt;
+                } else if (y < 20) {
+                    cData[i] = BlockStaticData.BlockType.Water;
                 } else {
                     cData[i] = BlockStaticData.BlockType.Air;
                 }

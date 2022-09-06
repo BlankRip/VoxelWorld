@@ -23,6 +23,36 @@ namespace BlockyWorld {
         public static HashSet<BlockType> canDrop = new HashSet<BlockType> { BlockType.Sand, BlockType.Water };
         public static HashSet<BlockType> canFlow = new HashSet<BlockType> { BlockType.Water };
 
+        public static (Vector3Int, BlockType)[] treeDesign = new (Vector3Int, BlockType)[] {
+                (new Vector3Int(0,1,-1), BlockType.Leaves),
+                (new Vector3Int(1,1,-1), BlockType.Leaves),
+                (new Vector3Int(-1,2,-1), BlockType.Leaves),
+                (new Vector3Int(0,2,-1), BlockType.Leaves),
+                (new Vector3Int(0,3,-1), BlockType.Leaves),
+                (new Vector3Int(-1,4,-1), BlockType.Leaves),
+                (new Vector3Int(0,4,-1), BlockType.Leaves),
+                (new Vector3Int(-1,5,-1), BlockType.Leaves),
+                (new Vector3Int(1,5,-1), BlockType.Leaves),
+                (new Vector3Int(0,0,0), BlockType.Wood),
+                (new Vector3Int(0,1,0), BlockType.Wood),
+                (new Vector3Int(0,2,0), BlockType.Wood),
+                (new Vector3Int(1,2,0), BlockType.Leaves),
+                (new Vector3Int(0,3,0), BlockType.Leaves),
+                (new Vector3Int(1,3,0), BlockType.Leaves),
+                (new Vector3Int(0,4,0), BlockType.Leaves),
+                (new Vector3Int(0,5,0), BlockType.Leaves),
+                (new Vector3Int(1,5,0), BlockType.Leaves),
+                (new Vector3Int(0,1,1), BlockType.Leaves),
+                (new Vector3Int(-1,2,1), BlockType.Leaves),
+                (new Vector3Int(0,2,1), BlockType.Leaves),
+                (new Vector3Int(-1,3,1), BlockType.Leaves),
+                (new Vector3Int(0,3,1), BlockType.Leaves),
+                (new Vector3Int(0,4,1), BlockType.Leaves),
+                (new Vector3Int(-1,5,1), BlockType.Leaves),
+                (new Vector3Int(0,5,1), BlockType.Leaves),
+                (new Vector3Int(1,5,1), BlockType.Leaves)
+        };
+
         public static Vector2[,] blockUVs = {
             /*GrassTop*/
             {
