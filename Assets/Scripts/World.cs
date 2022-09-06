@@ -143,15 +143,15 @@ namespace BlockyWorld.WorldBuilding {
                     blockPos.z = (int)(Mathf.Round(hitBlock.z) - hitChunk.worldPosition.z);
                     (Vector3Int, Vector3Int) blockNeighbour = GetWorldNeighbour(blockPos, Vector3Int.CeilToInt(hitChunk.worldPosition));
                     hitChunk = chunks[blockNeighbour.Item2];
-                    int i = ToFlat(blockNeighbour.Item1);
+                    int i = StaticFuncs.ToFlat(blockNeighbour.Item1);
                     if(leftClick) {
                         bool blockDestroyed = hitChunk.TakeHit(i);
                         if(blockDestroyed) {
-                            Vector3Int nBlock = FromFlat(i);
+                            Vector3Int nBlock = StaticFuncs.FromFlat(i);
                             (Vector3Int, Vector3Int) neighbourBlock = GetWorldNeighbour(new Vector3Int(nBlock.x, nBlock.y + 1, nBlock.z),
                                                                                             Vector3Int.CeilToInt(hitChunk.worldPosition));
                             Vector3Int block = neighbourBlock.Item1;
-                            int neighbourBlockIndex = ToFlat(block);
+                            int neighbourBlockIndex = StaticFuncs.ToFlat(block);
                             Chunk neighbourChunk = chunks[neighbourBlock.Item2];
                             StartCoroutine(Drop(neighbourChunk, neighbourBlockIndex));
                         }
@@ -172,11 +172,11 @@ namespace BlockyWorld.WorldBuilding {
                 yield break;
             yield return dropDelay;
             while(true) {
-                Vector3Int thisBlock = FromFlat(blockIndex);
+                Vector3Int thisBlock = StaticFuncs.FromFlat(blockIndex);
                 (Vector3Int, Vector3Int) neighbourBlock = GetWorldNeighbour(new Vector3Int(thisBlock.x, thisBlock.y - 1, thisBlock.z),
                                                                                 Vector3Int.CeilToInt(chunk.worldPosition));
                 Vector3Int block = neighbourBlock.Item1;
-                int neighbourBlockIndex = ToFlat(block);
+                int neighbourBlockIndex = StaticFuncs.ToFlat(block);
                 Chunk neighbourChunk = chunks[neighbourBlock.Item2];
                 if(neighbourChunk != null && neighbourChunk.chunkData[neighbourBlockIndex] == BlockStaticData.BlockType.Air) {
                     neighbourChunk.chunkData[neighbourBlockIndex] = chunk.chunkData[blockIndex];
@@ -187,7 +187,7 @@ namespace BlockyWorld.WorldBuilding {
                     (Vector3Int, Vector3Int) nBlockAbove = GetWorldNeighbour(new Vector3Int(thisBlock.x, thisBlock.y + 1, thisBlock.z),
                                                                                 Vector3Int.CeilToInt(chunk.worldPosition));
                     Vector3Int blockAbove = nBlockAbove.Item1;
-                    int nBlockAboveIndex = ToFlat(blockAbove);
+                    int nBlockAboveIndex = StaticFuncs.ToFlat(blockAbove);
                     Chunk nChunkAbove = chunks[nBlockAbove.Item2];
                     StartCoroutine(Drop(nChunkAbove, nBlockAboveIndex));
 
@@ -216,26 +216,16 @@ namespace BlockyWorld.WorldBuilding {
             Vector3Int neighbourPos = blockPos + neighbourDir;
             (Vector3Int, Vector3Int) neighbourBlock = GetWorldNeighbour(neighbourPos, chunkPos);
             Vector3Int block = neighbourBlock.Item1;
-            int neighboutBlockIndex = ToFlat(block);
+            int neighboutBlockIndex = StaticFuncs.ToFlat(block);
             Chunk neighbourChunk = chunks[neighbourBlock.Item2];
             if(neighbourChunk == null)
                 return;
             if(neighbourChunk.chunkData[neighboutBlockIndex] == BlockStaticData.BlockType.Air) {
-                neighbourChunk.chunkData[neighboutBlockIndex] = chunks[chunkPos].chunkData[ToFlat(blockPos)];
+                neighbourChunk.chunkData[neighboutBlockIndex] = chunks[chunkPos].chunkData[StaticFuncs.ToFlat(blockPos)];
                 neighbourChunk.ResetBlockHealth(neighboutBlockIndex);
                 neighbourChunk.ReDrawChunk();
                 StartCoroutine(Drop(neighbourChunk, neighboutBlockIndex, strength--));
             }
-        }
-
-        private Vector3Int FromFlat(int i) {
-            return new Vector3Int(i % chunkDimensions.x,
-                (i / chunkDimensions.x) % chunkDimensions.y,
-                i / (chunkDimensions.x * chunkDimensions.y));
-        }
-
-        private int ToFlat(Vector3Int v) {
-            return v.x + chunkDimensions.x * (v.y + chunkDimensions.z * v.z);
         }
 
         public (Vector3Int, Vector3Int) GetWorldNeighbour(Vector3Int blockIndex, Vector3Int chunkIndex) {

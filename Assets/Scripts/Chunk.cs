@@ -100,6 +100,27 @@ namespace BlockyWorld.WorldBuilding {
             blockTypes.Dispose();
             healthTypes.Dispose();
             randomArray.Dispose();
+
+            BuildTrees();
+        }
+
+        (Vector3Int, BlockStaticData.BlockType)[] treeDesign = new (Vector3Int, BlockStaticData.BlockType)[] {
+                (new Vector3Int(0, 1, 0), BlockStaticData.BlockType.Wood),
+                (new Vector3Int(0, 2, 0), BlockStaticData.BlockType.Leaves)
+        };
+        private void BuildTrees() {
+            for (int i = 0; i < chunkData.Length; i++) {
+                if(chunkData[i] == BlockStaticData.BlockType.WoodBase) {
+                    foreach ((Vector3Int, BlockStaticData.BlockType) data in treeDesign) {
+                        Vector3Int blockpos = StaticFuncs.FromFlat(i) + data.Item1;
+                        int bIndex = StaticFuncs.ToFlat(blockpos);
+                        if(bIndex >= 0 && bIndex <= chunkData.Length) {
+                            chunkData[bIndex] = data.Item2;
+                            healthData[bIndex] = BlockStaticData.BlockType.NoCrack;
+                        }
+                    }
+                }
+            }
         }
 
         struct CalculateBlockTypes : IJobParallelFor
