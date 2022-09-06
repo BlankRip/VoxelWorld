@@ -8,15 +8,16 @@ namespace BlockyWorld {
         public enum BlockSide {Nada, Bottom, Top, Left, Right, Front, Back};
 
         public enum BlockType {
-            GrassTop, GrassSide, Dirt, Water, Stone, Sand, Gold, BedRock, RedStone, Diamond,
+            GrassTop, GrassSide, Dirt, Water, Stone, Leaves, Wood, WoodBase, Sand, Gold, BedRock, RedStone, Diamond,
             NoCrack, Crack1, Crack2, Crack3, Crack4, Air
         };
 
         public static int[] blockTypeHealth = {
             /*GrassTop*/ 2, /*GrassSide*/ 2, /*Dirt*/ 1, /*Water*/ 1, 
-            /*Stone*/ 4, /*Sand*/ 3, /*Gold*/ 4, /*BedRock*/ -1,
-            /*RedStone*/ 3, /*Diamond*/ 4, /*NoCrack*/ -1, /*Crack1*/ -1,
-            /*Crack2*/ -1, /*Crack3*/ -1, /*Crack4*/ -1, /*Air*/ -1
+            /*Stone*/ 4, /*Leaves*/ 2, /*Wood*/ 4, /*WoodBase*/ 4,
+            /*Sand*/ 3, /*Gold*/ 4, /*BedRock*/ -1, /*RedStone*/ 3,
+            /*Diamond*/ 4, /*NoCrack*/ -1, /*Crack1*/ -1, /*Crack2*/ -1,
+            /*Crack3*/ -1, /*Crack4*/ -1, /*Air*/ -1
         };
 
         public static HashSet<BlockType> canDrop = new HashSet<BlockType> { BlockType.Sand, BlockType.Water };
@@ -47,6 +48,21 @@ namespace BlockyWorld {
             {
                 new Vector2( 0, 0.875f ), new Vector2( 0.0625f, 0.875f),
                 new Vector2( 0, 0.9375f ),new Vector2( 0.0625f, 0.9375f )
+            },
+            /*Leaves*/
+            {
+                new Vector2(0.0625f,0.375f),  new Vector2(0.125f,0.375f),
+                new Vector2(0.0625f,0.4375f), new Vector2(0.125f,0.4375f)
+            },
+ 		    /*Wood*/
+            {
+                new Vector2(0.375f,0.625f),  new Vector2(0.4375f,0.625f),
+                new Vector2(0.375f,0.6875f), new Vector2(0.4375f,0.6875f)
+            },
+ 		    /*WoodBase*/
+            {
+                new Vector2(0.375f,0.625f),  new Vector2(0.4375f,0.625f),
+                new Vector2(0.375f,0.6875f), new Vector2(0.4375f,0.6875f)
             },
             /*Sand*/
             {

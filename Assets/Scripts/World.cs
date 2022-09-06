@@ -17,6 +17,7 @@ namespace BlockyWorld.WorldBuilding {
         public static PerlinSettings diamondTopSettings;
         public static PerlinSettings diamondBottomSettings;
         public static PerlinSettings caveSettings;
+        public static PerlinSettings treeSettings;
 
         [SerializeField] bool loadFromFile = false;
 
@@ -31,6 +32,7 @@ namespace BlockyWorld.WorldBuilding {
         [SerializeField] PerlinGrapher diamondTopGrapher;
         [SerializeField] PerlinGrapher diamondBottomGrapher;
         [SerializeField] Perlin3DGrapher caveGrapher;
+        [SerializeField] Perlin3DGrapher treeGrapher;
 
         public HashSet<Vector3Int> chunkChecker = new HashSet<Vector3Int>();
         public HashSet<Vector2Int> chunkColumns = new HashSet<Vector2Int>();
@@ -54,6 +56,7 @@ namespace BlockyWorld.WorldBuilding {
             diamondTopSettings = new PerlinSettings(diamondTopGrapher.settings);
             diamondBottomSettings = new PerlinSettings(diamondBottomGrapher.settings);
             caveSettings = new PerlinSettings(caveGrapher.settings);
+            treeSettings = new PerlinSettings(treeGrapher.settings);
             if(loadFromFile)
                 StartCoroutine(LoadWorldFromFile());
             else

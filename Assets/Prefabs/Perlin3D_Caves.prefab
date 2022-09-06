@@ -70216,7 +70216,7 @@ GameObject:
   - component: {fileID: 6694193004015148942}
   - component: {fileID: 6694193004015148943}
   m_Layer: 0
-  m_Name: Perlin3D
+  m_Name: Perlin3D_Caves
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

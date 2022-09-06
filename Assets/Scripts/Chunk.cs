@@ -133,11 +133,16 @@ namespace BlockyWorld.WorldBuilding {
                     World.diamondBottomSettings.heightScale, World.diamondBottomSettings.heightOffset);
                 int digCave = (int)MeshUtils.fBM3D(x, y, z, World.caveSettings.octives, World.caveSettings.scale,
                     World.caveSettings.heightScale, World.caveSettings.heightOffset);
+                int plantTree = (int)MeshUtils.fBM3D(x, y, z, World.treeSettings.octives, World.treeSettings.scale,
+                    World.treeSettings.heightScale, World.treeSettings.heightOffset);
 
                 if(digCave < World.caveSettings.drawCutoff) {
                     cData[i] = BlockStaticData.BlockType.Air;
                 } else if(surfaceHeight == y) {
-                    cData[i] = BlockStaticData.BlockType.GrassSide;
+                    if(plantTree < World.treeSettings.drawCutoff && random.NextFloat(1) <= 0.1f) {
+                        cData[i] = BlockStaticData.BlockType.WoodBase;
+                    } else
+                        cData[i] = BlockStaticData.BlockType.GrassSide;
                 } else if ((y < diamondTopHeight) && (y > diamondBottomHeight) &&  (random.NextFloat(1) < World.diamondTopSettings.probability)) {
                     cData[i] = BlockStaticData.BlockType.Diamond;
                 } else if(y < stoneHeight && (random.NextFloat(1) < World.stoneSettings.probability)) {
