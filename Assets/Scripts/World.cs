@@ -164,8 +164,8 @@ namespace BlockyWorld.WorldBuilding {
         }
 
         WaitForSeconds dropDelay = new WaitForSeconds(0.1f);
-        public IEnumerator Drop(Chunk chunk, int blockIndex) {
-            if (chunk.chunkData[blockIndex] != BlockStaticData.BlockType.Sand)
+        public IEnumerator Drop(Chunk chunk, int blockIndex, int strength = 3) {
+            if (!BlockStaticData.canDrop.Contains(chunk.chunkData[blockIndex]))
                 yield break;
             yield return dropDelay;
             while(true) {
@@ -175,10 +175,11 @@ namespace BlockyWorld.WorldBuilding {
                 Vector3Int block = neighbourBlock.Item1;
                 int neighbourBlockIndex = ToFlat(block);
                 Chunk neighbourChunk = chunks[neighbourBlock.Item2];
-                if(neighbourChunk.chunkData[neighbourBlockIndex] == BlockStaticData.BlockType.Air) {
-                    neighbourChunk.chunkData[neighbourBlockIndex] = BlockStaticData.BlockType.Sand;
+                if(neighbourChunk != null && neighbourChunk.chunkData[neighbourBlockIndex] == BlockStaticData.BlockType.Air) {
+                    neighbourChunk.chunkData[neighbourBlockIndex] = chunk.chunkData[blockIndex];
                     neighbourChunk.ResetBlockHealth(neighbourBlockIndex);
                     chunk.chunkData[blockIndex] = BlockStaticData.BlockType.Air;
+                    chunk.ResetBlockHealth(blockIndex);
 
                     (Vector3Int, Vector3Int) nBlockAbove = GetWorldNeighbour(new Vector3Int(thisBlock.x, thisBlock.y + 1, thisBlock.z),
                                                                                 Vector3Int.CeilToInt(chunk.worldPosition));
@@ -194,8 +195,33 @@ namespace BlockyWorld.WorldBuilding {
                     
                     chunk = neighbourChunk;
                     blockIndex = neighbourBlockIndex;
+                } else if(BlockStaticData.canFlow.Contains(chunk.chunkData[blockIndex])) {
+                    FlowIntoNeighbour(thisBlock, Vector3Int.CeilToInt(chunk.worldPosition), Vector3Int.right, strength - 1);
+                    FlowIntoNeighbour(thisBlock, Vector3Int.CeilToInt(chunk.worldPosition), Vector3Int.left, strength - 1);
+                    FlowIntoNeighbour(thisBlock, Vector3Int.CeilToInt(chunk.worldPosition), Vector3Int.forward, strength - 1);
+                    FlowIntoNeighbour(thisBlock, Vector3Int.CeilToInt(chunk.worldPosition), Vector3Int.back, strength - 1);
+                    yield break;
                 } else
                     yield break;
+            }
+        }
+
+        private void FlowIntoNeighbour(Vector3Int blockPos, Vector3Int chunkPos, Vector3Int neighbourDir, int strength) {
+            strength--;
+            if(strength <= 0)
+                return;
+            Vector3Int neighbourPos = blockPos + neighbourDir;
+            (Vector3Int, Vector3Int) neighbourBlock = GetWorldNeighbour(neighbourPos, chunkPos);
+            Vector3Int block = neighbourBlock.Item1;
+            int neighboutBlockIndex = ToFlat(block);
+            Chunk neighbourChunk = chunks[neighbourBlock.Item2];
+            if(neighbourChunk == null)
+                return;
+            if(neighbourChunk.chunkData[neighboutBlockIndex] == BlockStaticData.BlockType.Air) {
+                neighbourChunk.chunkData[neighboutBlockIndex] = chunks[chunkPos].chunkData[ToFlat(blockPos)];
+                neighbourChunk.ResetBlockHealth(neighboutBlockIndex);
+                neighbourChunk.ReDrawChunk();
+                StartCoroutine(Drop(neighbourChunk, neighboutBlockIndex, strength--));
             }
         }
 

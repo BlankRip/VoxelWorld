@@ -19,6 +19,9 @@ namespace BlockyWorld {
             /*Crack2*/ -1, /*Crack3*/ -1, /*Crack4*/ -1, /*Air*/ -1
         };
 
+        public static HashSet<BlockType> canDrop = new HashSet<BlockType> { BlockType.Sand, BlockType.Water };
+        public static HashSet<BlockType> canFlow = new HashSet<BlockType> { BlockType.Water };
+
         public static Vector2[,] blockUVs = {
             /*GrassTop*/
             {
